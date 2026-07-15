@@ -18,13 +18,13 @@ export default function Home() {
     <div>
       <nav className="navbar">
         <Link href="/" className="logo">AB<span>_</span></Link>
-       <div className="links">
-  <a href="#about">About</a>
-  <a href="#skills">Skills</a>
-  <a href="#projects">Projects</a>
-  <a href="#testimonials">Testimonials</a>
-  <a href="#contact">Contact</a>
-      </div>
+        <div className="links">
+          <a href="#about">About</a>
+          <a href="#skills">Skills</a>
+          <a href="#projects">Projects</a>
+          <a href="#testimonials">Testimonials</a>
+          <a href="#contact">Contact</a>
+        </div>
         <button className="cta">Hire Me</button>
       </nav>
       <div className="intro">
@@ -40,7 +40,7 @@ export default function Home() {
         <p className="section-label">/ / 01 · About Me</p>
         <h2 className="section-title">Who I <span className="highlight">Am</span></h2>
         <p className="about-text">
-          I&apos;m Abdulbasit — a rare mix of leadership, tech, and design. I run the
+          I&apos;m Abdulbasit -- a rare mix of leadership, tech, and design. I run the
           systems that move thousands of people, then build the software to power
           them. Somewhere between shipping code and managing events, I&apos;m also
           working toward a pilot&apos;s license.
@@ -48,7 +48,7 @@ export default function Home() {
 
         <div className="about-cards-top">
           <div className="about-card triple-card">
-            <div className="triple-overlay">
+            <div className="about-overlay">
               <h3>The Triple Threat</h3>
               <div className="threat-list">
                 <div className="threat-item">
@@ -77,38 +77,38 @@ export default function Home() {
           </div>
 
           <div className="about-card age-card">
-            <div className="age-overlay">
+            <div className="about-overlay">
               <h3 className="age-number">19</h3>
               <p>Young. Driven. Proven.</p>
             </div>
           </div>
 
-          <div className="about-card runway-card">
-            <div className="runway-overlay">
-              <h3>Cleared for Takeoff</h3>
-              <p>Building a career on the ground, training for one in the air</p>
+          <div className="about-card aviator-card">
+            <div className="about-overlay">
+              <h3>Aspiring Aviator</h3>
+              <p>Training toward an EASA CPL</p>
             </div>
           </div>
         </div>
 
         <div className="about-cards-bottom">
-          <div className="about-card aviator-card">
-            <div className="aviator-overlay">
-              <h3>Aspiring Aviator</h3>
-              <p>Training toward an EASA CPL</p>
+          <div className="about-card runway-card">
+            <div className="about-overlay">
+              <h3>Cleared for Takeoff</h3>
+              <p>Building a career on the ground, training for one in the air</p>
             </div>
           </div>
 
           <div className="about-card gaming-card">
-            <div className="gaming-overlay">
+            <div className="about-overlay">
               <h3>Off the Clock</h3>
               <div className="gaming-stats">
                 <div className="gaming-stat">
-                  <strong>Ascendant</strong>
-                  <p>Valorant — ranked & premier</p>
+                  <strong>Valorant</strong>
+                  <p>Ascendant - ranked & premier</p>
                 </div>
                 <div className="gaming-stat">
-                  <strong>$200+</strong>
+                  <strong>Fortnite</strong>
                   <p>Earned in Fortnite FNCS & Cash Cups</p>
                 </div>
               </div>
@@ -119,5 +119,4 @@ export default function Home() {
     </div>
   );
 }
-
 

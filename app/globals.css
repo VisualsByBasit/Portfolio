@@ -141,7 +141,7 @@ body{
 
 .work-btn {
   display: inline-block;
- background: rgba(15, 15, 20, 0.5);
+  background: rgba(15, 15, 20, 0.5);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(124, 58, 237, 0.4);
   color: white;
@@ -166,7 +166,7 @@ body{
 
 .contact-btn {
   display: inline-block;
-   background: rgba(15, 15, 20, 0.5);
+  background: rgba(15, 15, 20, 0.5);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(8, 145, 178, 0.4);
   color: white;
@@ -236,7 +236,9 @@ body{
 }
 
 .about-card {
-  background: rgba(20, 20, 28, 0.6);
+  background-color: rgba(20, 20, 28, 0.6);
+  background-size: cover;
+  background-repeat: no-repeat;
   border: 1px solid rgba(124, 58, 237, 0.2);
   border-radius: 16px;
   min-width: 220px;
@@ -250,23 +252,43 @@ body{
   border-color: rgba(124, 58, 237, 0.5);
 }
 
+.about-overlay {
+  padding: 24px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+.about-overlay h3 {
+  color: white;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 16px;
+  margin: 0 0 4px 0;
+}
+.about-overlay p {
+  color: #e5e7eb;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.4;
+}
+
 /* Triple threat */
 .triple-card {
   background-image: url('/images/pillars.jpg');
-  background-size: cover;
-  background-position: center;
+  background-position: center 40%;
   flex: 1.4;
+  min-height: 260px;
 }
-.triple-overlay {
-  padding: 24px;
+.triple-card .about-overlay {
   position: relative;
-  z-index: 2;
+  bottom: auto;
+  padding-top: 40px;
 }
-.triple-overlay h3 {
-  color: white;
-  font-family: var(--font-inter), sans-serif;
+.triple-card .about-overlay h3 {
   font-size: 17px;
-  margin: 0 0 16px 0;
+  margin-bottom: 16px;
 }
 .threat-list {
   display: flex;
@@ -290,14 +312,12 @@ body{
 .dot-pink { background: #f472b6; box-shadow: 0 0 8px #f472b6; }
 .threat-item strong {
   color: white;
-  font-family: var(--font-inter), sans-serif;
   font-size: 14px;
   display: block;
   margin-bottom: 2px;
 }
 .threat-item p {
-  color: #9ca3af;
-  font-family: var(--font-inter), sans-serif;
+  color: #d1d5db;
   font-size: 12px;
   margin: 0;
 }
@@ -305,116 +325,55 @@ body{
 /* Age card */
 .age-card {
   background-image: url('/images/me.jpg');
-  background-size: cover;
-  background-position: center 15%;
+  background-position: center 90%;
   flex: 1;
-}
-.age-overlay {
-  padding: 24px;
-  position: absolute;
-  bottom: 0;
-  z-index: 2;
-}
-.age-number {
-  font-size: 56px;
-  font-weight: 700;
-  color: white;
-  margin: 0 0 4px 0;
-  font-family: var(--font-inter), sans-serif;
-}
-.age-overlay p:last-child {
-  color: #9ca3af;
-  font-family: var(--font-inter), sans-serif;
-  font-size: 13px;
-  margin: 0;
 }
 
-/* Runway card */
-.runway-card {
-  background-image: url('/images/runway.jpg');
-  background-size: cover;
-  background-position: center;
-  flex: 1;
-}
-.runway-overlay {
-  padding: 24px;
-  position: absolute;
-  bottom: 0;
-  z-index: 2;
-}
-.runway-overlay h3 {
+.age-number {
+  font-size: 44px;
+  font-weight: 700;
   color: white;
-  font-family: var(--font-inter), sans-serif;
-  font-size: 16px;
-  margin: 0 0 6px 0;
-}
-.runway-overlay p {
-  color: #9ca3af;
-  font-family: var(--font-inter), sans-serif;
-  font-size: 13px;
-  margin: 0;
-  line-height: 1.4;
+  margin: 0 0 4px 0 !important;
 }
 
 /* Aviator/cockpit card */
 .aviator-card {
   background-image: url('/images/cockpit.jpg');
-  background-size: cover;
-  background-position: center;
+  background-position: center 95%;
   flex: 1;
 }
-.aviator-overlay {
-  padding: 24px;
-  position: absolute;
-  bottom: 0;
-  z-index: 2;
-}
-.aviator-overlay h3 {
-  color: white;
-  font-family: var(--font-inter), sans-serif;
-  font-size: 16px;
-  margin: 0 0 4px 0;
-}
-.aviator-overlay p {
-  color: #9ca3af;
-  font-family: var(--font-inter), sans-serif;
-  font-size: 13px;
-  margin: 0;
+
+/* Runway card */
+.runway-card {
+  background-image: url('/images/runway.jpg');
+  background-position: center 50%;
+  flex: 1;
 }
 
 /* Gaming card */
 .gaming-card {
-  background: url('/images/gaming.jpg');
-  background-size: cover;
+  background-image: url('/images/gaming.jpg');
+  background-position: center 35%;
   flex: 1;
 }
-.gaming-overlay {
-  padding: 24px;
-}
-.gaming-overlay h3 {
-  color: white;
-  font-family: var(--font-inter), sans-serif;
-  font-size: 17px;
-  margin: 0 0 16px 0;
-}
+
 .gaming-stats {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 .gaming-stat strong {
-  color: #a78bfa;
-  font-family: var(--font-inter), sans-serif;
+  color: #22d3ee;
   font-size: 15px;
   display: block;
 }
 .gaming-stat p {
-  color: #9ca3af;
-  font-family: var(--font-inter), sans-serif;
+  color: #d1d5db;
   font-size: 12px;
-  margin: 4px 0 0 0;
+  margin: 2px 0 0 0;
 }
-
-
-
-
+.about-overlay h3,
+.about-overlay p,
+.about-overlay strong {
+  text-shadow: 0 20px 6px rgba(0,0,0,0.99);
+}
