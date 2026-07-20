@@ -24,78 +24,9 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  perspective: 750px;
-  --rg-depth: 28px; /* visual height of a popped cell's box sides */
 }
-.rg-inner {
-  position: absolute;
-  display: grid;
-  transform-style: preserve-3d;
-}
-.rg-cell {
-  position: relative;
-  border: 0.5px solid rgba(124, 58, 237, 0.13);
-  background-color: rgba(124, 58, 237, 0.03);
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-/* Pre-painted glow + box sides, revealed by animating only opacity so
-   ripples never repaint shadows per frame. --c is the cell's accent. */
-.rg-pop {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transform-style: preserve-3d;
-  pointer-events: none;
-}
-.rg-pop-top {
-  position: absolute;
-  inset: 0;
-  background: color-mix(in srgb, var(--c) 30%, transparent);
-  box-shadow:
-    0 0 14px color-mix(in srgb, var(--c) 50%, transparent),
-    0 0 30px color-mix(in srgb, var(--c) 22%, transparent);
-}
-/* Side faces folded down from the cell's edges (brightest at the top
-   face, fading toward the grid plane) turn the pop into a cube. */
-.rg-side {
-  position: absolute;
-}
-.rg-side-r {
-  top: 0;
-  right: 0;
-  height: 100%;
-  width: var(--rg-depth);
-  transform-origin: 100% 50%;
-  transform: rotateY(-90deg);
-  background: linear-gradient(to left, color-mix(in srgb, var(--c) 55%, transparent), color-mix(in srgb, var(--c) 8%, transparent));
-}
-.rg-side-l {
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: var(--rg-depth);
-  transform-origin: 0% 50%;
-  transform: rotateY(90deg);
-  background: linear-gradient(to right, color-mix(in srgb, var(--c) 55%, transparent), color-mix(in srgb, var(--c) 8%, transparent));
-}
-.rg-side-b {
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  height: var(--rg-depth);
-  transform-origin: 50% 100%;
-  transform: rotateX(90deg);
-  background: linear-gradient(to top, color-mix(in srgb, var(--c) 55%, transparent), color-mix(in srgb, var(--c) 8%, transparent));
-}
-.rg-side-t {
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: var(--rg-depth);
-  transform-origin: 50% 0%;
-  transform: rotateX(-90deg);
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--c) 55%, transparent), color-mix(in srgb, var(--c) 8%, transparent));
+.ripple-grid canvas {
+  display: block;
 }
 .grid-beams {
   position: absolute;

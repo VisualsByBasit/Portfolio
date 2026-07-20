@@ -1,51 +1,32 @@
 "use client";
-import React, {
+import {
   forwardRef,
-  useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
   useState,
 } from "react";
+import { Canvas } from "@react-three/fiber";
+import * as THREE from "three";
 import { cn } from "@/lib/utils";
-import GridBeams from "./ui/GridBeams";
+import CubeField, {
+  type CubeFieldHandle,
+  type RippleOpts,
+} from "./ripple-grid/CubeField";
+import Effects from "./ripple-grid/Effects";
+import GlassEnvironment from "./ripple-grid/GlassEnvironment";
+import { useQualityTier } from "./ripple-grid/useQualityTier";
+import { usePrefersReducedMotion } from "./ripple-grid/usePrefersReducedMotion";
 
 /**
- * Shared 3D ripple grid used by both the loading screen and the hero
- * background. Cells physically rise (scale + translateZ), glow in a
- * palette color, then settle, staggered by distance from the ripple
- * origin - same delay/duration model as ui/BackgroundRippleEffect, but
- * driven through the Web Animations API so ripples can overlap and
- * follow the cursor without re-rendering hundreds of nodes.
+ * Shared GPU-rendered 3D cube field used by both the loading screen and
+ * the hero background. A single React Three Fiber instanced mesh reads
+ * as a field of glass cubes over noise-based terrain; waves are spring-
+ * physics height targets injected into that mesh, not per-node DOM
+ * animations. See app/components/ripple-grid/ for the implementation -
+ * this file is just the measurement/wiring shell so the public
+ * contract (props + sweepFrom/rippleAt) never has to change for callers.
  */
-
-// Purple-dominant with cyan accents; pink is a ~3% easter egg.
-const PURPLES = ["#7c3aed", "#8b5cf6", "#a78bfa", "#6d28d9"];
-const CYANS = ["#22d3ee", "#67e8f9"];
-const PINK = "#f472b6";
-
-// Deterministic per-cell accent so re-renders never reshuffle colors.
-const colorFor = (idx: number) => {
-  const h = ((idx * 2654435761) >>> 0) % 1000;
-  if (h < 30) return PINK;
-  if (h < 330) return CYANS[h % CYANS.length];
-  return PURPLES[h % PURPLES.length];
-};
-
-type RippleOpts = {
-  /** ms of extra delay per cell of distance from the origin */
-  delayPerCell?: number;
-  /** base ms duration of one cell's rise+settle */
-  durationBase?: number;
-  /** extra ms of duration per cell of distance */
-  durationPerCell?: number;
-  /** cells further than this (grid distance) don't animate */
-  maxRadius?: number;
-  /** px of translateZ at the peak */
-  lift?: number;
-  /** 0..1 - how much the wave attenuates by its outer edge (1 = dies out fully) */
-  edgeFade?: number;
-};
 
 export type RippleGridHandle = {
   /** Full-grid wave from a viewport point; resolves when the wave has covered the grid. */
@@ -60,8 +41,6 @@ type Dims = {
   cell: number;
   cols: number;
   rows: number;
-  offX: number;
-  offY: number;
 };
 
 type RippleGridProps = {
@@ -72,57 +51,54 @@ type RippleGridProps = {
   idleRipples?: boolean;
   /** continuous small ripples trailing the cursor */
   followMouse?: boolean;
-  /** grid-aligned light beams overlay */
+  /**
+   * Kept for API compatibility - the old flat SVG light-beam overlay
+   * (ui/GridBeams) doesn't make sense projected over true 3D geometry
+   * under a perspective camera and has been retired. The connector
+   * "energy" bars between active cubes (see CubeField) now cover the
+   * same "something is traveling through the grid" role, natively in 3D.
+   */
   beams?: boolean;
 };
 
+const BG = "#06060f";
+
 const RippleGrid = forwardRef<RippleGridHandle, RippleGridProps>(
   function RippleGrid(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for API compatibility, see RippleGridProps.beams
     { className, cellSize = 64, idleRipples = false, followMouse = false, beams = true },
     handle,
   ) {
     const wrapRef = useRef<HTMLDivElement>(null);
-    const gridRef = useRef<HTMLDivElement>(null);
+    const cubeFieldRef = useRef<CubeFieldHandle>(null);
     const [dims, setDims] = useState<Dims | null>(null);
-    const dimsRef = useRef<Dims | null>(null);
-    dimsRef.current = dims;
-    const reducedRef = useRef(false);
     const visibleRef = useRef(true);
+    const mouseActiveRef = useRef(false);
 
-    useEffect(() => {
-      reducedRef.current = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-    }, []);
+    const tier = useQualityTier();
+    const reducedMotion = usePrefersReducedMotion();
+    const effectiveCellSize = tier === "low" ? cellSize * 1.6 : cellSize;
 
-    // Measure the wrapper and derive a centered, full-bleed grid.
+    // Measure the wrapper and derive a centered grid density; same cap
+    // formula as before so 4K viewports don't get thousands of cubes.
     useEffect(() => {
       const wrap = wrapRef.current;
       if (!wrap) return;
       const measure = () => {
         const { width, height } = wrap.getBoundingClientRect();
         if (width < 10 || height < 10) return;
-        // Cap total cell count so 4K viewports don't get thousands of nodes.
-        const cell = Math.max(cellSize, Math.sqrt((width * height) / 1000));
+        const cell = Math.max(effectiveCellSize, Math.sqrt((width * height) / 1000));
         const cols = Math.ceil(width / cell);
         const rows = Math.ceil(height / cell);
-        setDims({
-          width,
-          height,
-          cell,
-          cols,
-          rows,
-          offX: (width - cols * cell) / 2,
-          offY: (height - rows * cell) / 2,
-        });
+        setDims({ width, height, cell, cols, rows });
       };
       measure();
       const ro = new ResizeObserver(measure);
       ro.observe(wrap);
       return () => ro.disconnect();
-    }, [cellSize]);
+    }, [effectiveCellSize]);
 
-    // Pause idle ripples while the grid is off-screen.
+    // Pause idle/ambient animation while the grid is off-screen.
     useEffect(() => {
       const wrap = wrapRef.current;
       if (!wrap) return;
@@ -133,228 +109,69 @@ const RippleGrid = forwardRef<RippleGridHandle, RippleGridProps>(
       return () => io.disconnect();
     }, []);
 
-    const animateWave = useCallback(
-      (originRow: number, originCol: number, opts: RippleOpts = {}) => {
-        const d = dimsRef.current;
-        const grid = gridRef.current;
-        if (!d || !grid) return 0;
-        const {
-          delayPerCell = 55,
-          durationBase = 300,
-          durationPerCell = 70,
-          maxRadius = Infinity,
-          lift = 26,
-          edgeFade = 1,
-        } = opts;
-        const reduced = reducedRef.current;
-        const cells = grid.children;
-        // Radius the falloff is measured against: the wave's own cap, or
-        // the farthest grid corner for uncapped sweeps.
-        const reach = Number.isFinite(maxRadius)
-          ? maxRadius
-          : Math.max(
-              Math.hypot(originRow, originCol),
-              Math.hypot(originRow, d.cols - 1 - originCol),
-              Math.hypot(d.rows - 1 - originRow, originCol),
-              Math.hypot(d.rows - 1 - originRow, d.cols - 1 - originCol),
-            );
-        const rise = "cubic-bezier(0.22, 1, 0.36, 1)";
-        const fall = "cubic-bezier(0.5, 0, 0.6, 1)";
-        let maxD = 0;
-        for (let row = 0; row < d.rows; row++) {
-          for (let col = 0; col < d.cols; col++) {
-            const dist = Math.hypot(originRow - row, originCol - col);
-            if (dist > maxRadius) continue;
-            // Strength decays toward the wave's outer edge so it dissolves
-            // there instead of stopping on a hard, full-brightness ring.
-            const strength =
-              1 - edgeFade * Math.pow(Math.min(dist / reach, 1), 1.6);
-            if (strength < 0.05) continue;
-            const idx = row * d.cols + col;
-            const el = cells[idx] as HTMLElement | undefined;
-            if (!el) continue;
-            const pop = el.firstElementChild as HTMLElement | null;
-            maxD = Math.max(maxD, dist);
-            // Replace any in-flight wave on this cell instead of stacking
-            // concurrent animations; the implicit first keyframe makes the
-            // new wave take over from the cell's current pose.
-            for (const a of el.getAnimations()) a.cancel();
-            if (pop) for (const a of pop.getAnimations()) a.cancel();
-            const timing = {
-              delay: dist * delayPerCell,
-              duration: Math.max(160, durationBase + dist * durationPerCell),
-            };
-            if (!reduced) {
-              el.animate(
-                [
-                  { offset: 0, easing: rise },
-                  {
-                    offset: 0.32,
-                    easing: fall,
-                    transform: `translateZ(${lift * strength}px) scale(${1 + 0.1 * strength})`,
-                  },
-                  {
-                    offset: 0.82,
-                    easing: "ease-out",
-                    transform: `translateZ(${lift * strength * 0.06}px) scale(1)`,
-                  },
-                  { offset: 1, transform: "translateZ(0) scale(1)" },
-                ],
-                timing,
-              );
-            }
-            // Glow + box sides live on the pre-painted child; animating
-            // only its opacity keeps the whole wave on the compositor.
-            pop?.animate(
-              [
-                { offset: 0, easing: rise },
-                { offset: 0.32, easing: fall, opacity: strength },
-                { offset: 0.82, easing: "ease-out", opacity: strength * 0.12 },
-                { offset: 1, opacity: 0 },
-              ],
-              timing,
-            );
-          }
-        }
-        return maxD * delayPerCell + durationBase + maxD * durationPerCell;
-      },
-      [],
-    );
-
-    const cellFromPoint = useCallback((clientX: number, clientY: number) => {
-      const d = dimsRef.current;
-      const wrap = wrapRef.current;
-      if (!d || !wrap) return null;
-      const rect = wrap.getBoundingClientRect();
-      return {
-        row: Math.floor((clientY - rect.top - d.offY) / d.cell),
-        col: Math.floor((clientX - rect.left - d.offX) / d.cell),
-      };
-    }, []);
-
     useImperativeHandle(
       handle,
       () => ({
         sweepFrom: (clientX, clientY) =>
-          new Promise((resolve) => {
-            const cell = cellFromPoint(clientX, clientY);
-            if (!cell) return resolve();
-            const total = animateWave(cell.row, cell.col, {
-              delayPerCell: 16,
-              durationBase: 650,
-              durationPerCell: 12,
-              lift: 40,
-              edgeFade: 0.55,
-            });
-            setTimeout(resolve, total);
-          }),
-        rippleAt: (clientX, clientY, opts) => {
-          const cell = cellFromPoint(clientX, clientY);
-          if (cell) animateWave(cell.row, cell.col, opts);
-        },
+          cubeFieldRef.current?.sweepFrom(clientX, clientY) ?? Promise.resolve(),
+        rippleAt: (clientX, clientY, opts) => cubeFieldRef.current?.rippleAt(clientX, clientY, opts),
       }),
-      [animateWave, cellFromPoint],
+      [],
     );
 
-    // Idle: small ripples at random points on a loose interval.
-    useEffect(() => {
-      if (!idleRipples) return;
-      let timer: ReturnType<typeof setTimeout>;
-      const tick = () => {
-        const d = dimsRef.current;
-        if (d && visibleRef.current && !document.hidden) {
-          animateWave(
-            Math.floor(Math.random() * d.rows),
-            Math.floor(Math.random() * d.cols),
-            { maxRadius: 3.5 + Math.random() * 2, lift: 24, delayPerCell: 65 },
-          );
-        }
-        timer = setTimeout(tick, 2600 + Math.random() * 2000);
-      };
-      timer = setTimeout(tick, 1200);
-      return () => clearTimeout(timer);
-    }, [idleRipples, animateWave]);
-
-    // Mouse: continuous throttled ripples trailing the cursor.
-    useEffect(() => {
-      if (!followMouse) return;
-      let last = 0;
-      const onMove = (e: MouseEvent) => {
-        const now = performance.now();
-        if (now - last < 170) return;
-        const wrap = wrapRef.current;
-        if (!wrap) return;
-        const rect = wrap.getBoundingClientRect();
-        if (
-          e.clientX < rect.left ||
-          e.clientX > rect.right ||
-          e.clientY < rect.top ||
-          e.clientY > rect.bottom
-        )
-          return;
-        last = now;
-        const cell = cellFromPoint(e.clientX, e.clientY);
-        if (cell)
-          animateWave(cell.row, cell.col, {
-            maxRadius: 3,
-            lift: 20,
-            delayPerCell: 45,
-            durationBase: 260,
-            durationPerCell: 55,
-          });
-      };
-      window.addEventListener("mousemove", onMove, { passive: true });
-      return () => window.removeEventListener("mousemove", onMove);
-    }, [followMouse, animateWave, cellFromPoint]);
-
     return (
-      <div ref={wrapRef} className={cn("ripple-grid", className)} aria-hidden>
+      <div
+        ref={wrapRef}
+        className={cn("ripple-grid", className)}
+        aria-hidden
+        onPointerEnter={() => {
+          mouseActiveRef.current = true;
+        }}
+        onPointerLeave={() => {
+          mouseActiveRef.current = false;
+        }}
+        onPointerDown={(e) => {
+          if (!followMouse) return;
+          cubeFieldRef.current?.rippleAt(e.clientX, e.clientY, {
+            lift: 0.42,
+            maxRadius: 5,
+            speed: 22,
+            width: 2,
+            edgeFade: 0.6,
+          });
+        }}
+      >
         {dims && (
           <>
-            <div
-              ref={gridRef}
-              className="rg-inner"
-              style={{
-                left: dims.offX,
-                top: dims.offY,
-                gridTemplateColumns: `repeat(${dims.cols}, ${dims.cell}px)`,
-                gridTemplateRows: `repeat(${dims.rows}, ${dims.cell}px)`,
-                width: dims.cols * dims.cell,
-                height: dims.rows * dims.cell,
+            <Canvas
+              camera={{ position: [0, 12.5, 4.5], fov: 38 }}
+              dpr={tier === "high" ? [1, 1.5] : 1}
+              gl={{ antialias: true, powerPreference: "high-performance" }}
+              onCreated={({ camera, scene, gl }) => {
+                camera.lookAt(0, -0.5, -7);
+                scene.background = new THREE.Color(BG);
+                scene.fog = new THREE.FogExp2(BG, 0.045);
+                gl.setClearColor(BG, 1);
               }}
             >
-              {Array.from({ length: dims.rows * dims.cols }, (_, idx) => {
-                const row = Math.floor(idx / dims.cols);
-                const col = idx % dims.cols;
-                // Show the two box faces angled toward the viewport center
-                // so raised cells read as solid cubes under perspective.
-                const sideH = col < dims.cols / 2 ? "rg-side-r" : "rg-side-l";
-                const sideV = row < dims.rows / 2 ? "rg-side-b" : "rg-side-t";
-                return (
-                  <div key={idx} className="rg-cell">
-                    <div
-                      className="rg-pop"
-                      style={{ "--c": colorFor(idx) } as React.CSSProperties}
-                    >
-                      <div className="rg-pop-top" />
-                      <div className={`rg-side ${sideH}`} />
-                      <div className={`rg-side ${sideV}`} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            {beams && (
-              <GridBeams
-                width={dims.width}
-                height={dims.height}
-                cellSize={dims.cell}
-                offsetX={dims.offX}
-                offsetY={dims.offY}
-                rows={dims.rows}
+              <ambientLight intensity={0.09} color="#6f92c4" />
+              <hemisphereLight args={["#6fa8c4", "#050414", 0.1]} />
+              <directionalLight position={[-6, 9, 4]} intensity={0.5} color="#bfe4ee" />
+              {tier === "high" && <GlassEnvironment />}
+              <CubeField
+                key={`${dims.cols}x${dims.rows}-${tier}`}
+                ref={cubeFieldRef}
                 cols={dims.cols}
+                rows={dims.rows}
+                tier={tier}
+                idleRipples={idleRipples}
+                followMouse={followMouse}
+                reducedMotion={reducedMotion}
+                mouseActiveRef={mouseActiveRef}
+                visibleRef={visibleRef}
               />
-            )}
+              {tier === "high" && <Effects />}
+            </Canvas>
           </>
         )}
       </div>
