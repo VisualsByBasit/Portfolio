@@ -17,6 +17,7 @@ import WorkingStyle from "./components/WorkingStyle";
 import Skills from "./components/Skills";
 import Projects from "./components/Projects";
 import Testimonials from "./components/Testimonials";
+import LogoCloud from "./components/LogoCloud";
 import Contact from "./components/Contact";
 
 const titles = [
@@ -253,6 +254,7 @@ export default function Home() {
       <Projects />
       <Skills />
       <Testimonials />
+      <LogoCloud />
       <Contact />
 
       <ScrollFX />

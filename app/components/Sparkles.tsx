@@ -16,7 +16,7 @@ const COLORS = ["#a78bfa", "#22d3ee", "#ffffff", "#c4b5fd"];
 
 /**
  * Canvas of tiny twinkling particles that fade in, drift slightly and
- * fade out. Sized to its parent — position the parent, drop this inside.
+ * fade out. Sized to its parent - position the parent, drop this inside.
  */
 export default function Sparkles({ density = 40 }: { density?: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

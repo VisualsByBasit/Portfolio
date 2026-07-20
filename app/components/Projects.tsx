@@ -58,7 +58,7 @@ const APPROACH = [
   {
     phase: "Phase 1",
     title: "Plan & Strategize",
-    text: "We map goals, audience and scope together. Wireframes, moodboards and a clear brief — before a single line of code.",
+    text: "We map goals, audience and scope together. Wireframes, moodboards and a clear brief - before a single line of code.",
     shape: "approach-shape-a",
   },
   {

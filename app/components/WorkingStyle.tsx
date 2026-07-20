@@ -10,13 +10,13 @@ type TermLine = { kind: "cmd" | "out"; text: string; className?: string };
 
 const SCRIPT: TermLine[] = [
   { kind: "cmd", text: "whoami" },
-  { kind: "out", text: "abdulbasit — dev · designer · aviator-in-training" },
+  { kind: "out", text: "abdulbasit - dev · designer · aviator-in-training" },
   { kind: "cmd", text: "npm run build" },
   { kind: "out", text: "▲ Next.js 16 (Turbopack)", className: "t-dim" },
   { kind: "out", text: "✓ Compiled successfully", className: "t-ok" },
   { kind: "out", text: "✓ 0 errors · 0 warnings", className: "t-ok" },
   { kind: "cmd", text: "deploy --prod" },
-  { kind: "out", text: "● live — shipping since age 16", className: "t-accent" },
+  { kind: "out", text: "● live - shipping since age 16", className: "t-accent" },
 ];
 
 function Terminal() {
@@ -135,7 +135,7 @@ function StackColumns() {
 /* ---------------------- Flat dotted world map --------------------- */
 
 // Stylized world map on a 48×20 dot grid ('#' = land). Deliberately
-// coarse — it reads as continents at a glance, like reference/bento.png.
+// coarse - it reads as continents at a glance, like reference/bento.png.
 const MAP_ROWS = [
   "...###..######...###.....##..##############....",
   "..#############..###...######################..",
@@ -232,7 +232,7 @@ function CopyEmail() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2200);
     } catch {
-      // Clipboard blocked — fall back to the mail client.
+      // Clipboard blocked - fall back to the mail client.
       window.location.href = `mailto:${EMAIL}`;
     }
   };
@@ -258,7 +258,7 @@ export default function WorkingStyle() {
       </h2>
 
       <div className="ws-grid">
-        {/* Big laptop illustration — lid opens on hover, Earth on screen */}
+        {/* Big laptop illustration - lid opens on hover, Earth on screen */}
         <div className="ws-card ws-laptop-card">
           <span className="ws-bubble ws-bubble-a" aria-hidden />
           <span className="ws-bubble ws-bubble-b" aria-hidden />
@@ -282,7 +282,7 @@ export default function WorkingStyle() {
           </h3>
         </div>
 
-        {/* Flat dotted map — time zones */}
+        {/* Flat dotted map - time zones */}
         <div className="ws-card ws-tz-card">
           <DottedGlowBackground
             className="tz-glow-bg"
@@ -299,7 +299,7 @@ export default function WorkingStyle() {
           <DottedMap />
         </div>
 
-        {/* Tech stack — opposing plain-text marquee columns */}
+        {/* Tech stack - opposing plain-text marquee columns */}
         <div className="ws-card ws-stack-card">
           <div className="stack-text">
             <p className="ws-kicker">I constantly try to improve</p>
@@ -319,7 +319,7 @@ export default function WorkingStyle() {
           </div>
         </div>
 
-        {/* Terminal — the inside scoop */}
+        {/* Terminal - the inside scoop */}
         <div className="ws-card ws-terminal-card">
           <div className="scoop-text">
             <p className="ws-kicker">The Inside Scoop</p>
@@ -332,13 +332,13 @@ export default function WorkingStyle() {
           </div>
         </div>
 
-        {/* Mini CTA — copy email */}
+        {/* Mini CTA - copy email */}
         <div className="ws-card ws-cta-card">
           <h3 className="ws-h3">Do you want to start a project together?</h3>
           <CopyEmail />
         </div>
 
-        {/* Relocated 3D globe — full-width strip */}
+        {/* Relocated 3D globe - full-width strip */}
         <div className="ws-card ws-globe-strip">
           <div className="globe-wrap">
             <div className="globe-glow" />

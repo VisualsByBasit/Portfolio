@@ -14,7 +14,7 @@ import GridBeams from "./ui/GridBeams";
  * Shared 3D ripple grid used by both the loading screen and the hero
  * background. Cells physically rise (scale + translateZ), glow in a
  * palette color, then settle, staggered by distance from the ripple
- * origin — same delay/duration model as ui/BackgroundRippleEffect, but
+ * origin - same delay/duration model as ui/BackgroundRippleEffect, but
  * driven through the Web Animations API so ripples can overlap and
  * follow the cursor without re-rendering hundreds of nodes.
  */
@@ -43,7 +43,7 @@ type RippleOpts = {
   maxRadius?: number;
   /** px of translateZ at the peak */
   lift?: number;
-  /** 0..1 — how much the wave attenuates by its outer edge (1 = dies out fully) */
+  /** 0..1 - how much the wave attenuates by its outer edge (1 = dies out fully) */
   edgeFade?: number;
 };
 

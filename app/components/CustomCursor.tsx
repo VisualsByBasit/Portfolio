@@ -60,7 +60,7 @@ export default function CustomCursor() {
       ).map(toTarget);
     };
     collect();
-    // Element positions shift on scroll/resize/layout — refresh cheaply.
+    // Element positions shift on scroll/resize/layout - refresh cheaply.
     const interval = setInterval(collect, 800);
     window.addEventListener("scroll", collect, { passive: true });
 

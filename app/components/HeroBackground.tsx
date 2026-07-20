@@ -160,7 +160,7 @@ function RippleGrid() {
 }
 
 /* ---------------------------------------------------------------- *
- * Aurora wash — a big quad behind the grid running slow fbm noise in
+ * Aurora wash - a big quad behind the grid running slow fbm noise in
  * purple/cyan/pink, additively blended for a soft northern-lights wash.
  * ---------------------------------------------------------------- */
 

@@ -4,8 +4,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 /**
- * Site-wide scroll-driven animation pass. Everything here is scrubbed —
- * tied to scroll position and running both directions — rather than
+ * Site-wide scroll-driven animation pass. Everything here is scrubbed -
+ * tied to scroll position and running both directions - rather than
  * one-time entrance fades.
  */
 export default function ScrollFX() {

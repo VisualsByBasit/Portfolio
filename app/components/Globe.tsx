@@ -3,7 +3,7 @@ import { useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-/** Points distributed on a sphere with a faint wireframe — a light,
+/** Points distributed on a sphere with a faint wireframe - a light,
  *  texture-free globe that spins slowly for the time-zones card. */
 function DotSphere() {
   const group = useRef<THREE.Group>(null);

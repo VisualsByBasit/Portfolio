@@ -6,7 +6,7 @@ const DELETE_MS = 38;
 const HOLD_MS = 1700;
 const GAP_MS = 350;
 
-/** Types a word out, holds, deletes it, then moves to the next — forever. */
+/** Types a word out, holds, deletes it, then moves to the next - forever. */
 export default function Typewriter({ words }: { words: string[] }) {
   const [wordIndex, setWordIndex] = useState(0);
   const [text, setText] = useState("");
