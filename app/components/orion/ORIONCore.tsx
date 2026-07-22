@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
  * true alpha 0, no matter the state.
  */
 
-export type OrionMode = "idle" | "hover" | "thinking" | "opening";
+export type OrionMode = "idle" | "hover" | "thinking" | "opening" | "error";
 
 const CYAN = new THREE.Color("#22d3ee");
 const BLUE = new THREE.Color("#3b82f6");
@@ -305,7 +305,10 @@ function Scene({ mode, accentTrigger, reducedMotion }: Required<Omit<ORIONCorePr
     const brightnessBoost =
       1 + breathe * 0.5 + hoverK * 0.9 + thinkK * 0.35 + openPulse * 1.4 + respondRef.current * 0.8;
     tone.copy(color).multiplyScalar(brightnessBoost);
-    const accentAmount = Math.min(1, accentRef.current * 1.15);
+    // Error mode holds the warm accent at full strength instead of letting
+    // it decay - a persistent status signal rather than a passing flash.
+    const errorK = mode === "error" ? 1 : 0;
+    const accentAmount = Math.min(1, Math.max(accentRef.current * 1.15, errorK));
     if (accentAmount > 0.01) tone.lerp(ACCENT, accentAmount).multiplyScalar(1 + accentAmount * 0.6);
     if (respondRef.current > 0.01) tone.lerp(RESPOND, respondRef.current * 0.5);
 

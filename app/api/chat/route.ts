@@ -10,7 +10,7 @@ import { ORION_SYSTEM_PROMPT } from "@/lib/orion-prompt";
 
 export const runtime = "nodejs";
 
-const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-3.5-flash-lite";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 const MAX_MESSAGE_LENGTH = 500;
@@ -176,13 +176,16 @@ export async function POST(req: NextRequest) {
         contents,
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 500,
+          maxOutputTokens: 1536,
+          thinkingConfig: { thinkingLevel: "low" },
         },
       }),
       signal: controller.signal,
     }).finally(() => clearTimeout(timeout));
 
     if (!res.ok) {
+      const errorBody = await res.text().catch(() => "<unreadable>");
+      console.error(`[orion] Gemini API error: status=${res.status} model=${GEMINI_MODEL} body=${errorBody}`);
       const status = res.status === 429 ? 429 : 502;
       return jsonReply(
         {
@@ -210,7 +213,8 @@ export async function POST(req: NextRequest) {
     }
 
     return jsonReply({ reply: text });
-  } catch {
+  } catch (err) {
+    console.error(`[orion] Gemini request failed: ${err instanceof Error ? err.message : String(err)}`);
     return jsonReply(
       { reply: "Something interrupted that request on my end. Try again in a moment.", accent: true },
       500,
