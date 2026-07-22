@@ -217,6 +217,86 @@ body{
   box-shadow: 0 8px 20px rgba(124, 58, 237, 0.7);
 }
 
+/* Mobile hamburger + dropdown - hidden on desktop, swapped in for
+   .links/.cta below the same breakpoint that hides them (see the
+   max-width:720px block in the responsive section). */
+.nav-toggle {
+  display: none;
+  flex: none;
+  flex-direction: column;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 50%;
+  background: rgba(124, 58, 237, 0.08);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+.nav-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #a78bfa, #22d3ee);
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+.nav-toggle span + span {
+  margin-top: 5px;
+}
+.nav-toggle.is-open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.nav-toggle.is-open span:nth-child(2) {
+  opacity: 0;
+}
+.nav-toggle.is-open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+.nav-mobile-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  /* Fully opaque, not translucent like .orion-panel/.navbar - this sits
+     directly over the glowing hero heading, and even a 95%+ alpha still
+     let a legible ghost of that glow show through against the near-
+     black backdrop. */
+  background: #0a0a11;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  border-radius: 22px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+.nav-mobile-menu a {
+  color: #b9c2d0;
+  text-decoration: none;
+  font-family: var(--font-jetbrains), monospace;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  transition: background 0.2s, color 0.2s;
+}
+.nav-mobile-menu a:hover,
+.nav-mobile-menu a:focus-visible {
+  background: rgba(124, 58, 237, 0.14);
+  color: #fff;
+  outline: none;
+}
+.nav-mobile-cta {
+  margin-top: 6px;
+  width: 100%;
+  text-align: center;
+}
+
 ::-webkit-scrollbar {
   width: 3px;
 }
@@ -2223,6 +2303,12 @@ a.cta {
 @media (max-width: 720px) {
   .navbar .links {
     display: none;
+  }
+  .navbar > .magnetic {
+    display: none;
+  }
+  .nav-toggle {
+    display: flex;
   }
   .ws-grid {
     grid-template-columns: 1fr;

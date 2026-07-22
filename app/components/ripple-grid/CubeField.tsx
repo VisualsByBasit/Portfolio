@@ -285,33 +285,46 @@ gl_FragColor.rgb += rimFresnel * 0.35;
     // fewer CSS pixels (eg. a laptop vs a desktop monitor) that produced
     // a grid physically smaller than the frustum, leaving background
     // showing around the edges. Rescale the whole grid (via the wrapping
-    // group) so it always spans the actual visible footprint, computed
-    // by raycasting the four screen corners onto the ground plane -
-    // vertical FOV (and thus the near/far reach) doesn't change with
-    // aspect, so this stays correct across ultrawide, 16:9 and square
-    // aspect ratios alike.
+    // group) so it always spans the actual visible footprint.
+    //
+    // Depth (Z) and width (X) are sampled separately rather than via the
+    // four screen corners - combining a large horizontal NDC offset with
+    // the near-horizon vertical offset (a screen corner) can, at certain
+    // aspect ratios, make that ray nearly parallel to the ground plane,
+    // so its intersection point becomes wildly unstable (verified: a
+    // 412x915 viewport produced a footprint roughly a third the size,
+    // with the wrong sign, of every neighboring phone aspect ratio -
+    // exactly the near-top-of-screen gap this was reported against).
+    // Sampling the screen-center column (x=0) for depth sidesteps that
+    // entirely - vertical FOV doesn't depend on aspect, so top/bottom-
+    // center rays are exact regardless of viewport shape. Width only
+    // needs the *bottom* corners: perspective narrows the trapezoid
+    // toward the horizon, so the near (bottom) edge is always the
+    // widest - a uniform horizontal scale that covers it automatically
+    // covers the narrower far edge too, without ever sampling a top
+    // corner.
     useEffect(() => {
-      const corners: [number, number][] = [
-        [-1, -1],
-        [1, -1],
-        [-1, 1],
-        [1, 1],
-      ];
-      let minX = Infinity;
-      let maxX = -Infinity;
-      let minZ = Infinity;
-      let maxZ = -Infinity;
-      for (const [nx, ny] of corners) {
+      // hitPoint is a shared, module-level scratch Vector3 that
+      // intersectPlane writes into and returns - copy out the numbers
+      // immediately so each sample() call doesn't alias (and get
+      // overwritten by) the next one.
+      const sample = (nx: number, ny: number) => {
         ndc.set(nx, ny);
         raycaster.current.setFromCamera(ndc, camera);
         const hit = raycaster.current.ray.intersectPlane(groundPlane, hitPoint);
-        if (!hit) continue;
-        minX = Math.min(minX, hit.x);
-        maxX = Math.max(maxX, hit.x);
-        minZ = Math.min(minZ, hit.z);
-        maxZ = Math.max(maxZ, hit.z);
-      }
-      if (!Number.isFinite(minX) || !Number.isFinite(minZ) || !groupRef.current) return;
+        return hit ? { x: hit.x, z: hit.z } : null;
+      };
+      const zNear = sample(0, -1); // bottom-center - closest point
+      const zFar = sample(0, 1); // top-center - furthest point
+      const xLeft = sample(-1, -1); // bottom-left corner
+      const xRight = sample(1, -1); // bottom-right corner
+
+      if (!zNear || !zFar || !xLeft || !xRight || !groupRef.current) return;
+
+      const minZ = Math.min(zNear.z, zFar.z);
+      const maxZ = Math.max(zNear.z, zFar.z);
+      const minX = Math.min(xLeft.x, xRight.x);
+      const maxX = Math.max(xLeft.x, xRight.x);
 
       const FOOTPRINT_MARGIN = 1.08; // slight overscan - covers rounding/trapezoidal edges
       const gridWidth = Math.max(cols - 1, 1) * SPACING;

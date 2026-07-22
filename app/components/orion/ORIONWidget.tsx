@@ -147,9 +147,13 @@ export default function ORIONWidget() {
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
-  // Focus the input once the message area has mounted.
+  // Focus the input once the message area has mounted - skipped on
+  // touch devices, where focusing immediately pops the keyboard and
+  // covers the hero orb/opening animation the panel just played.
   useEffect(() => {
-    if (panelReady) inputRef.current?.focus();
+    if (!panelReady) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    inputRef.current?.focus();
   }, [panelReady]);
 
   // Type out the greeting once the panel has finished materializing

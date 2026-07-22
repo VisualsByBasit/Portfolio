@@ -7,6 +7,7 @@ import SmoothScroll from "./components/SmoothScroll";
 import ScrollFX from "./components/ScrollFX";
 import CustomCursor from "./components/CustomCursor";
 import Magnetic from "./components/Magnetic";
+import MobileNav from "./components/MobileNav";
 import RippleGrid from "./components/RippleGrid";
 import { Spotlight } from "./components/ui/Spotlight";
 import Sparkles from "./components/Sparkles";
@@ -74,6 +75,7 @@ export default function Home() {
         <Magnetic>
           <a href="#contact" className="cta">Hire Me</a>
         </Magnetic>
+        <MobileNav />
       </nav>
 
       <section className="hero">
