@@ -1020,7 +1020,9 @@ a.cta {
 /* Relocated 3D globe - full-width strip */
 .globe-wrap {
   position: relative;
-  flex: 0 0 250px;
+  flex: 0 1 250px;
+  min-width: 0;
+  width: min(250px, 100%);
 }
 .globe-canvas {
   height: 210px;
@@ -1515,7 +1517,7 @@ a.cta {
 }
 .shot-body {
   position: relative;
-  height: 150px;
+  min-height: 150px;
   padding: 24px 22px;
   display: flex;
   flex-direction: column;
@@ -2152,8 +2154,8 @@ a.cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   color: #cfd2da;
   border: 1px solid rgba(124, 58, 237, 0.25);
@@ -2172,6 +2174,9 @@ a.cta {
 @media (max-width: 960px) {
   .ws-grid {
     grid-template-columns: 1fr 1fr;
+  }
+  .ws-globe-strip {
+    grid-column: span 2;
   }
   .approach-grid {
     grid-template-columns: 1fr;
@@ -2270,7 +2275,7 @@ a.cta {
     font-size: 15px;
   }
   .testimonial-card {
-    width: 300px;
+    width: 100%;
   }
   .projects-grid {
     gap: 80px 24px;
@@ -2907,13 +2912,35 @@ a.cta {
   .orion-launcher {
     right: 16px;
     bottom: 16px;
+    width: 72px;
+    height: 72px;
   }
+  .orion-launcher .orion-core {
+    width: 68px !important;
+    height: 68px !important;
+  }
+  /* Near-fullscreen on phones - anchoring to all four edges (rather than
+     a bottom-anchored min() height) keeps this correct in both portrait
+     and landscape without a separate orientation rule. */
   .orion-panel {
-    right: 12px;
-    left: 12px;
-    bottom: 12px;
+    right: 8px;
+    left: 8px;
+    top: 8px;
+    bottom: 8px;
     width: auto;
-    height: min(560px, calc(100vh - 88px));
+    height: auto;
+  }
+  .orion-hero-orb,
+  .orion-hero-orb .orion-core {
+    width: 92px !important;
+    height: 92px !important;
+  }
+  .orion-close {
+    width: 34px;
+    height: 34px;
+  }
+  .orion-chip {
+    padding: 9px 13px;
   }
 }
 

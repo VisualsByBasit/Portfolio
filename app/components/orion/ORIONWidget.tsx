@@ -138,13 +138,13 @@ export default function ORIONWidget() {
   // clicking outside the panel to close it needs its own listener.
   useEffect(() => {
     if (!open) return;
-    const onPointerDown = (e: MouseEvent) => {
+    const onPointerDown = (e: PointerEvent) => {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         closePanel();
       }
     };
-    document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
   // Focus the input once the message area has mounted.
@@ -458,3 +458,4 @@ export default function ORIONWidget() {
     </>
   );
 }
+

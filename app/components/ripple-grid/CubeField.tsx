@@ -94,8 +94,14 @@ const CubeField = forwardRef<CubeFieldHandle, CubeFieldProps>(
     { cols, rows, tier, idleRipples, followMouse, reducedMotion, mouseActiveRef, visibleRef },
     handleRef,
   ) {
-    const { camera, gl } = useThree();
+    const { camera, gl, size } = useThree();
     const meshRef = useRef<THREE.InstancedMesh>(null);
+    const groupRef = useRef<THREE.Group>(null);
+    // World-units-per-cell scale actually needed to cover the current
+    // camera frustum's footprint on the ground plane - see the resize
+    // effect below. Read by cellFromClient/mouse-tracking so hit-testing
+    // stays correct once the group has been rescaled.
+    const spacingScaleRef = useRef({ x: 1, z: 1 });
     const count = cols * rows;
 
     const geometry = useMemo(() => {
@@ -271,6 +277,52 @@ gl_FragColor.rgb += rimFresnel * 0.35;
     const raycaster = useRef(new THREE.Raycaster());
     const clockRef = useRef(0);
 
+    // The camera is a fixed oblique perspective rig - its frustum's
+    // footprint on the ground plane is roughly constant in world units
+    // regardless of the container's CSS pixel size (aspect ratio only
+    // shifts it slightly). cols/rows above are picked from raw pixel
+    // dimensions purely for cube density/perf, so on a viewport with
+    // fewer CSS pixels (eg. a laptop vs a desktop monitor) that produced
+    // a grid physically smaller than the frustum, leaving background
+    // showing around the edges. Rescale the whole grid (via the wrapping
+    // group) so it always spans the actual visible footprint, computed
+    // by raycasting the four screen corners onto the ground plane -
+    // vertical FOV (and thus the near/far reach) doesn't change with
+    // aspect, so this stays correct across ultrawide, 16:9 and square
+    // aspect ratios alike.
+    useEffect(() => {
+      const corners: [number, number][] = [
+        [-1, -1],
+        [1, -1],
+        [-1, 1],
+        [1, 1],
+      ];
+      let minX = Infinity;
+      let maxX = -Infinity;
+      let minZ = Infinity;
+      let maxZ = -Infinity;
+      for (const [nx, ny] of corners) {
+        ndc.set(nx, ny);
+        raycaster.current.setFromCamera(ndc, camera);
+        const hit = raycaster.current.ray.intersectPlane(groundPlane, hitPoint);
+        if (!hit) continue;
+        minX = Math.min(minX, hit.x);
+        maxX = Math.max(maxX, hit.x);
+        minZ = Math.min(minZ, hit.z);
+        maxZ = Math.max(maxZ, hit.z);
+      }
+      if (!Number.isFinite(minX) || !Number.isFinite(minZ) || !groupRef.current) return;
+
+      const FOOTPRINT_MARGIN = 1.08; // slight overscan - covers rounding/trapezoidal edges
+      const gridWidth = Math.max(cols - 1, 1) * SPACING;
+      const gridDepth = Math.max(rows - 1, 1) * SPACING;
+      const scaleX = Math.max(1, ((maxX - minX) * FOOTPRINT_MARGIN) / gridWidth);
+      const scaleZ = Math.max(1, ((maxZ - minZ) * FOOTPRINT_MARGIN) / gridDepth);
+
+      spacingScaleRef.current = { x: scaleX, z: scaleZ };
+      groupRef.current.scale.set(scaleX, 1, scaleZ);
+    }, [camera, size.width, size.height, cols, rows]);
+
     const injectWave = (row: number, col: number, opts: RippleOpts = {}) => {
       const {
         lift = 0.34,
@@ -313,8 +365,8 @@ gl_FragColor.rgb += rimFresnel * 0.35;
       raycaster.current.setFromCamera(ndc, camera);
       const hit = raycaster.current.ray.intersectPlane(groundPlane, hitPoint);
       if (!hit) return null;
-      const col = hit.x / SPACING + (cols - 1) / 2;
-      const row = -hit.z / SPACING;
+      const col = hit.x / (SPACING * spacingScaleRef.current.x) + (cols - 1) / 2;
+      const row = -hit.z / (SPACING * spacingScaleRef.current.z);
       return { row, col };
     };
 
@@ -453,8 +505,8 @@ gl_FragColor.rgb += rimFresnel * 0.35;
         raycaster.current.setFromCamera(state.pointer, state.camera);
         const hit = raycaster.current.ray.intersectPlane(groundPlane, hitPoint);
         if (hit) {
-          mouseCell.current.col = hit.x / SPACING + (cols - 1) / 2;
-          mouseCell.current.row = -hit.z / SPACING;
+          mouseCell.current.col = hit.x / (SPACING * spacingScaleRef.current.x) + (cols - 1) / 2;
+          mouseCell.current.row = -hit.z / (SPACING * spacingScaleRef.current.z);
         }
       }
       const mouseOn = followMouse && mouseActiveRef.current && !reducedMotion;
@@ -608,7 +660,7 @@ gl_FragColor.rgb += rimFresnel * 0.35;
     });
 
     return (
-      <>
+      <group ref={groupRef}>
         <instancedMesh ref={setMeshRef} args={[geometry, material, count]} castShadow={false} receiveShadow={false} />
         {edgeCount > 0 && (
           <instancedMesh
@@ -618,7 +670,7 @@ gl_FragColor.rgb += rimFresnel * 0.35;
             receiveShadow={false}
           />
         )}
-      </>
+      </group>
     );
   },
 );
