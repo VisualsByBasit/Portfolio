@@ -3,8 +3,15 @@ import { useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
 import { AnimatePresence, motion } from "framer-motion";
 import Magnetic from "./Magnetic";
+import CountrySelect from "./contact/CountrySelect";
+import StatCard from "./contact/StatCard";
+import ContactCubes from "./contact/ContactCubes";
+import { COUNTRIES } from "@/data/countries";
 
 type Status = "idle" | "sending" | "sent" | "error";
+type Errors = { firstName?: boolean; email?: boolean; country?: boolean; message?: boolean };
+
+const REQUIREMENTS = ["Web Development", "UI/UX & Graphic Design", "Event Systems", "Something Else"];
 
 function GithubIcon() {
   return (
@@ -31,6 +38,42 @@ function WhatsappIcon() {
   );
 }
 
+function MailIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+      <rect x="3" y="5" width="18" height="14" rx="2.5" />
+      <path d="m4 7 8 6 8-6" />
+    </svg>
+  );
+}
+
+function CalendarIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+      <path d="M3.5 9.5h17M8 3v4M16 3v4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function UsersIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+      <circle cx="9" cy="8" r="3.2" />
+      <path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6" strokeLinecap="round" />
+      <path d="M15.5 6.2c1.6.2 2.8 1.6 2.8 3.3 0 1.6-1.1 2.9-2.6 3.2M17.5 14c2.4.4 4 2.4 4 5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function BoltIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden>
+      <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" />
+    </svg>
+  );
+}
+
 /**
  * Contact form wired to EmailJS. Reads its IDs from NEXT_PUBLIC_ env vars
  * (see .env.local.example) - until those are set, submissions show a
@@ -39,14 +82,39 @@ function WhatsappIcon() {
 export default function Contact() {
   const formRef = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<Status>("idle");
+  const [errors, setErrors] = useState<Errors>({});
+  const [countryIso2, setCountryIso2] = useState<string | null>(null);
+  const [dialIso2, setDialIso2] = useState<string | null>("PK");
+  const [requirements, setRequirements] = useState<string[]>([]);
 
   const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
   const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
   const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
 
+  const toggleRequirement = (opt: string) => {
+    setRequirements((prev) => (prev.includes(opt) ? prev.filter((o) => o !== opt) : [...prev, opt]));
+  };
+
+  const validate = () => {
+    const form = formRef.current;
+    if (!form) return false;
+    const firstNameEl = form.elements.namedItem("first_name") as HTMLInputElement;
+    const emailEl = form.elements.namedItem("reply_to") as HTMLInputElement;
+    const messageEl = form.elements.namedItem("message") as HTMLTextAreaElement;
+    const next: Errors = {
+      firstName: !firstNameEl.value.trim(),
+      email: !emailEl.validity.valid,
+      country: !countryIso2,
+      message: !messageEl.value.trim(),
+    };
+    setErrors(next);
+    return !Object.values(next).some(Boolean);
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formRef.current || status === "sending") return;
+    if (!validate()) return;
 
     if (!serviceId || !templateId || !publicKey) {
       setStatus("error");
@@ -58,10 +126,16 @@ export default function Contact() {
       await emailjs.sendForm(serviceId, templateId, formRef.current, { publicKey });
       setStatus("sent");
       formRef.current.reset();
+      setCountryIso2(null);
+      setDialIso2("PK");
+      setRequirements([]);
+      setErrors({});
     } catch {
       setStatus("error");
     }
   };
+
+  const dial = COUNTRIES.find((c) => c.iso2 === dialIso2)?.dial ?? "";
 
   return (
     <section id="contact" className="contact-section">
@@ -75,75 +149,188 @@ export default function Contact() {
         <p className="contact-underline-lead">
           Have a project, an event that needs a system behind it, or just want to say salam - my inbox is open.
         </p>
+        <span className="contact-pill">Available for freelance work</span>
       </div>
 
-      <div className="contact-grid">
-        <div className="contact-info">
-          <span className="contact-pill">Available for freelance work</span>
-          <div className="contact-rows">
-            <div className="contact-row">
-              <span className="contact-key">email</span>
-              <a href="mailto:abdulbasitso019@gmail.com">abdulbasitso019@gmail.com</a>
-            </div>
-            <div className="contact-row">
-              <span className="contact-key">location</span>
-              <span>Islamabad, Pakistan - available remote &amp; local</span>
-            </div>
-          </div>
+      <div className="contact-stats-row">
+        <StatCard icon={<CalendarIcon />} value={5} suffix="+" label="Events managed" />
+        <StatCard icon={<UsersIcon />} value={4800} suffix="+" label="Participants reached" />
+        <StatCard icon={<span className="stat-code-icon">{"</>"}</span>} value={3} suffix="+" label="Years shipping code" />
+        <div className="stat-card stat-card-status">
+          <span className="stat-icon" aria-hidden>
+            <BoltIcon />
+          </span>
+          <p className="stat-status">
+            <span className="stat-status-dot" />
+            Available
+          </p>
+          <p className="stat-label">Usually replies within 24h</p>
+        </div>
+      </div>
+
+      <div className="contact-panels-wrap">
+        <div className="contact-bg-heading" aria-hidden>
+          LET&apos;S CONNECT
         </div>
 
-        <form ref={formRef} className="contact-form" onSubmit={onSubmit}>
-          <label>
-            <span>Name</span>
-            <input name="from_name" type="text" placeholder="Your name" required />
-          </label>
-          <label>
-            <span>Email</span>
-            <input name="reply_to" type="email" placeholder="you@example.com" required />
-          </label>
-          <label>
-            <span>Message</span>
-            <textarea name="message" rows={5} placeholder="Tell me about your project..." required />
-          </label>
-          <Magnetic className="contact-send-wrap">
-            <button
-              type="submit"
-              className="contact-send"
-              data-cursor-label="Send"
-              disabled={status === "sending"}
-            >
-              {status === "sending" ? "Sending..." : "Send Message"}
-              <span>↗</span>
-            </button>
-          </Magnetic>
+        <div className="contact-panels">
+        <div className="contact-form-panel">
+          <form ref={formRef} className="contact-form" onSubmit={onSubmit} noValidate>
+            <div className="contact-form-row">
+              <label>
+                <span>First name *</span>
+                <input
+                  name="first_name"
+                  type="text"
+                  placeholder="First name"
+                  className={errors.firstName ? "field-error" : undefined}
+                  onChange={() => errors.firstName && setErrors((p) => ({ ...p, firstName: false }))}
+                />
+                {errors.firstName && <p className="field-error-text">Tell me your name.</p>}
+              </label>
+              <label>
+                <span>Last name</span>
+                <input name="last_name" type="text" placeholder="Last name" />
+              </label>
+            </div>
 
-          <AnimatePresence mode="wait">
-            {status === "sent" && (
-              <motion.p
-                key="sent"
-                className="form-note form-ok"
-                initial={{ opacity: 0, y: 12, scale: 0.85 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.9 }}
-                transition={{ type: "spring", stiffness: 340, damping: 15 }}
+            <div className="contact-form-row">
+              <label>
+                <span>Email *</span>
+                <input
+                  name="reply_to"
+                  type="email"
+                  required
+                  placeholder="you@example.com"
+                  className={errors.email ? "field-error" : undefined}
+                  onChange={() => errors.email && setErrors((p) => ({ ...p, email: false }))}
+                />
+                {errors.email && <p className="field-error-text">Enter a valid email address.</p>}
+              </label>
+              <label>
+                <span>Phone</span>
+                <div className="phone-field">
+                  <CountrySelect mode="compact" value={dialIso2} onChange={setDialIso2} />
+                  <input name="phone" type="tel" placeholder="Phone number" />
+                </div>
+                <input type="hidden" name="phone_dial" value={dial} />
+              </label>
+            </div>
+
+            <label>
+              <span>Country *</span>
+              <CountrySelect
+                mode="full"
+                value={countryIso2}
+                onChange={(iso2) => {
+                  setCountryIso2(iso2);
+                  setErrors((p) => ({ ...p, country: false }));
+                }}
+                error={errors.country}
+                name="country"
+              />
+              {errors.country && <p className="field-error-text">Choose a country.</p>}
+            </label>
+
+            <div className="requirement-field">
+              <span>What do you need help with?</span>
+              <div className="requirement-chips">
+                {REQUIREMENTS.map((opt) => (
+                  <button
+                    type="button"
+                    key={opt}
+                    className={requirements.includes(opt) ? "chip chip-active" : "chip"}
+                    onClick={() => toggleRequirement(opt)}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+              <input type="hidden" name="requirement" value={requirements.join(", ")} />
+            </div>
+
+            <label>
+              <span>How can I help?</span>
+              <textarea
+                name="message"
+                rows={5}
+                placeholder="Feel free to outline your ideas or needs..."
+                className={errors.message ? "field-error" : undefined}
+                onChange={(e) => errors.message && e.target.value.trim() && setErrors((p) => ({ ...p, message: false }))}
+              />
+              {errors.message && <p className="field-error-text">Let me know what you need.</p>}
+            </label>
+
+            <Magnetic className="contact-send-wrap">
+              <button
+                type="submit"
+                className="contact-send"
+                data-cursor-label="Send"
+                disabled={status === "sending"}
               >
-                <span className="form-note-icon">🎉</span> Message away - I&apos;ll get back to you soon. Check your inbox for a confirmation.
-              </motion.p>
-            )}
-            {status === "error" && (
-              <motion.p
-                key="error"
-                className="form-note form-err"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-              >
-                Couldn&apos;t send right now - email me directly at{" "}
-                <a href="mailto:abdulbasitso019@gmail.com">abdulbasitso019@gmail.com</a>.
-              </motion.p>
-            )}
-          </AnimatePresence>
-        </form>
+                {status === "sending" ? "Sending..." : "Send Message"}
+                <span>↗</span>
+              </button>
+            </Magnetic>
+
+            <AnimatePresence mode="wait">
+              {status === "sent" && (
+                <motion.p
+                  key="sent"
+                  className="form-note form-ok"
+                  initial={{ opacity: 0, y: 12, scale: 0.85 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.9 }}
+                  transition={{ type: "spring", stiffness: 340, damping: 15 }}
+                >
+                  <span className="form-note-icon">🎉</span> Message away - I&apos;ll get back to you soon. Check your inbox for a confirmation.
+                </motion.p>
+              )}
+              {status === "error" && (
+                <motion.p
+                  key="error"
+                  className="form-note form-err"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                >
+                  Couldn&apos;t send right now - email me directly at{" "}
+                  <a href="mailto:abdulbasitso019@gmail.com">abdulbasitso019@gmail.com</a>.
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </form>
+        </div>
+
+        <div className="contact-visual-panel">
+          <ContactCubes />
+        </div>
+        </div>
+      </div>
+
+      <div className="contact-links-row">
+        <a className="contact-link-chip" href="mailto:abdulbasitso019@gmail.com" data-cursor-label="Email">
+          <MailIcon />
+          abdulbasitso019@gmail.com
+        </a>
+        <a
+          className="contact-link-chip"
+          href="https://wa.me/923340666502"
+          target="_blank"
+          rel="noreferrer"
+          data-cursor-label="Chat"
+        >
+          <WhatsappIcon />
+          +92 334 0666502
+        </a>
+        <a className="contact-link-chip" href="#" target="_blank" rel="noreferrer" data-cursor-label="View">
+          <GithubIcon />
+          GitHub
+        </a>
+        <a className="contact-link-chip" href="#" target="_blank" rel="noreferrer" data-cursor-label="View">
+          <LinkedinIcon />
+          LinkedIn
+        </a>
       </div>
 
       <footer className="site-footer">
