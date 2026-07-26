@@ -75,7 +75,11 @@ export default function ScrollFX() {
       });
 
       // Bento / project / testimonial cards scale + tilt continuously.
-      gsap.utils.toArray<HTMLElement>(".ws-card, .pin-wrap, .approach-card").forEach((el, i) => {
+      // Targets .approach-card-wrap (not .approach-card) - that inner
+      // element is the hover-flip shell (rotateY 180 via CSS), and GSAP
+      // writes its animated properties as inline styles, which would
+      // permanently override the CSS-driven flip rotation otherwise.
+      gsap.utils.toArray<HTMLElement>(".ws-card, .pin-wrap, .approach-card-wrap").forEach((el, i) => {
         gsap.fromTo(
           el,
           { scale: 0.92, opacity: 0.35, rotate: i % 2 === 0 ? -1.5 : 1.5 },

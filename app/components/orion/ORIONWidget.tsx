@@ -125,6 +125,18 @@ export default function ORIONWidget() {
     setPanelReady(false);
   };
 
+  // External open trigger - the ORION project card in Projects.tsx
+  // dispatches this instead of linking away, since ORION lives on this
+  // same page. Re-registered on `open` so the closure never goes stale.
+  useEffect(() => {
+    const onExternalOpen = () => openPanel();
+    window.addEventListener("orion:open", onExternalOpen);
+    return () => window.removeEventListener("orion:open", onExternalOpen);
+    // openPanel is intentionally omitted - it's recreated every render and
+    // its whole behavior is gated on `open`, which is already the dep here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {

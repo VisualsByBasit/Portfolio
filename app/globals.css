@@ -103,6 +103,15 @@
  box-sizing: border-box;
 }
 
+html, body {
+  /* Defensive safety net: several sections use transform-driven slide
+     animations (Logo Cloud batch swaps, etc.) inside their own
+     overflow:hidden containers - transient mid-animation offsets can
+     still register in scrollWidth in some engines even though nothing
+     is ever visibly clipped incorrectly. This guarantees no stray
+     horizontal scrollbar regardless. */
+  overflow-x: hidden;
+}
 body{
   background-color: #06060f;
   margin: 0;
@@ -833,6 +842,150 @@ a.cta {
 }
 
 /* ============================================================
+   Experience - vertical timeline
+   ============================================================ */
+.experience-section {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 25px 120px;
+}
+.timeline {
+  position: relative;
+  margin-top: 50px;
+  padding-left: 32px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: linear-gradient(180deg, #7c3aed, #22d3ee 60%, rgba(34, 211, 238, 0.15));
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: 34px;
+}
+.timeline-item:last-child {
+  margin-bottom: 0;
+}
+.timeline-dot {
+  position: absolute;
+  left: -32px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22d3ee;
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.15), 0 0 12px rgba(34, 211, 238, 0.5);
+}
+.timeline-dot-current {
+  background: #a78bfa;
+  box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.15), 0 0 12px rgba(167, 139, 250, 0.5);
+  animation: timeline-pulse 2s ease-in-out infinite;
+}
+@keyframes timeline-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.timeline-card {
+  background: rgba(14, 14, 23, 0.75);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 16px;
+  padding: 22px 26px;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+.timeline-card:hover {
+  border-color: rgba(167, 139, 250, 0.45);
+  transform: translateX(4px);
+  box-shadow: 0 14px 34px rgba(6, 6, 15, 0.5);
+}
+.timeline-card-current {
+  border-style: dashed;
+  border-color: rgba(167, 139, 250, 0.35);
+  background: rgba(124, 58, 237, 0.06);
+}
+.timeline-date {
+  display: inline-block;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #22d3ee;
+  margin-bottom: 8px;
+}
+.timeline-card h3 {
+  color: white;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+.timeline-role {
+  color: #a78bfa;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+.timeline-text {
+  color: #cfd2da;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 14.5px;
+  line-height: 1.6;
+  margin: 0;
+}
+.timeline-stat {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  color: #7fe9c6;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.5px;
+}
+.timeline-cta {
+  margin-top: 50px;
+  padding-left: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.timeline-cta p {
+  color: #cfd2da;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 15px;
+  margin: 0;
+  max-width: 420px;
+}
+.timeline-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #7c3aed, #0891b2);
+  color: white;
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 12px 26px;
+  border-radius: 25px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.timeline-cta-btn:hover {
+  transform: translateY(-3px) translateX(3px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.5);
+}
+
+/* ============================================================
    Working Style bento section
    ============================================================ */
 .ws-section {
@@ -912,32 +1065,60 @@ a.cta {
   margin: 0 0 10px;
 }
 
-/* Laptop illustration - lid opens on hover, Earth site on the screen */
+/* Laptop illustration - premium 3D isometric mockup. .laptop is the
+   perspective camera; .laptop-rig holds the fixed isometric tilt so the
+   whole assembly (lid + keyboard deck) reads as one 3D object, while the
+   lid keeps its own independent hover-triggered hinge rotation nested
+   inside that tilted frame. */
 .laptop {
   width: 330px;
   max-width: 88%;
   margin: 34px auto 10px;
-  perspective: 1000px;
+  perspective: 1100px;
+}
+.laptop-rig {
+  transform-style: preserve-3d;
+  transform: rotateX(20deg) rotateY(-5deg);
 }
 .laptop-lid {
+  position: relative;
   height: 200px;
-  border-radius: 14px 14px 0 0;
-  border: 1px solid rgba(124, 58, 237, 0.4);
-  background: #0b0b16;
+  border-radius: 14px 14px 2px 2px;
+  border: 1px solid rgba(124, 58, 237, 0.45);
+  background: linear-gradient(155deg, #1a1a2c, #0b0b16 60%);
+  padding: 9px 9px 0;
   overflow: hidden;
   transform-origin: bottom center;
-  transform: rotateX(-88deg);
+  /* -108deg, not -88deg: .laptop-rig adds its own +20deg tilt on the same
+     axis (nested rotateX composes additively), so this compensates to
+     keep the net angle where it was - close enough to edge-on to read as
+     properly shut, rather than a "reclined" pose that still shows the
+     screen. */
+  transform: rotateX(-108deg);
   transition: transform 1.05s cubic-bezier(0.22, 1, 0.36, 1);
   box-shadow: 0 -6px 34px rgba(124, 58, 237, 0.14);
 }
 .ws-laptop-card:hover .laptop-lid {
   transform: rotateX(-2deg);
 }
+.laptop-cam {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(167, 139, 250, 0.5);
+  box-shadow: 0 0 4px rgba(167, 139, 250, 0.6);
+  z-index: 2;
+}
 .laptop-screen {
   position: relative;
   height: 100%;
-  padding: 18px 20px;
+  padding: 16px 18px;
   background: #07070f;
+  border-radius: 6px 6px 0 0;
   overflow: hidden;
 }
 /* Mini "Planet Earth" site mock on the open screen */
@@ -977,14 +1158,17 @@ a.cta {
   background: radial-gradient(circle at 35% 30%, #67e8f9 0%, #22d3ee 20%, #0e7490 45%, #312e81 72%, #06060f 100%);
   box-shadow: 0 0 44px rgba(34, 211, 238, 0.4), inset -20px -16px 44px rgba(6, 6, 15, 0.8);
 }
-/* Figma-style purple deck */
+/* Keyboard deck - a real 3D plane (not just a thin bar), tilted along
+   with the rest of the rig so it reads as the laptop's base viewed at
+   an angle, with a visible key grid and trackpad. */
 .laptop-base {
   position: relative;
-  height: 15px;
-  border-radius: 2px 2px 18px 18px;
-  background: linear-gradient(180deg, #6d28d9, #2e1065 85%);
+  height: 54px;
+  border-radius: 3px 3px 16px 16px;
+  background: linear-gradient(180deg, #6d28d9, #2e1065 88%);
   border: 1px solid rgba(167, 139, 250, 0.35);
   border-top: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 .laptop-notch {
   position: absolute;
@@ -995,6 +1179,42 @@ a.cta {
   height: 5px;
   border-radius: 0 0 6px 6px;
   background: rgba(6, 6, 15, 0.55);
+}
+.laptop-deck {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px 0;
+}
+.laptop-keys {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 3px;
+  width: 100%;
+}
+.laptop-keys i {
+  display: block;
+  height: 5px;
+  border-radius: 1.5px;
+  background: rgba(6, 6, 15, 0.4);
+}
+.laptop-trackpad {
+  width: 72px;
+  height: 12px;
+  border-radius: 3px;
+  background: rgba(6, 6, 15, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+/* Front edge of the deck - a sliver of "thickness" under the base so it
+   reads as a solid 3D slab rather than a flat plane. */
+.laptop-edge {
+  height: 7px;
+  margin: 0 2px;
+  border-radius: 0 0 10px 10px;
+  background: linear-gradient(180deg, #1e1065, #0c0620);
+  transform: rotateX(-38deg);
+  transform-origin: top center;
 }
 .ws-laptop-headline {
   color: white;
@@ -1048,77 +1268,51 @@ a.cta {
   transform: rotate(30deg);
 }
 
-/* Time-zone card - flat dotted world map + country chips */
-.tz-glow-bg {
-  z-index: 0;
-  -webkit-mask-image: radial-gradient(115% 100% at 50% 45%, black 50%, transparent 98%);
-  mask-image: radial-gradient(115% 100% at 50% 45%, black 50%, transparent 98%);
-}
-.ws-tz-card .ws-h3,
-.ws-tz-card .tz-map {
-  position: relative;
-  z-index: 1;
-}
-.ws-tz-card .ws-h3 {
-  margin-bottom: 14px;
-}
-.tz-map {
-  position: relative;
-}
-.tz-map svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.tz-chip {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  padding: 5px 12px;
-  border-radius: 8px;
-  background: rgba(18, 18, 30, 0.92);
-  border: 1px solid rgba(167, 139, 250, 0.3);
-  color: #e5e7eb;
-  font-family: var(--font-inter), sans-serif;
-  font-size: 11.5px;
-  white-space: nowrap;
-}
-.tz-chip-home {
-  border-color: rgba(34, 211, 238, 0.7);
-  color: #22d3ee;
-  box-shadow: 0 0 14px rgba(34, 211, 238, 0.25);
-}
-.tz-ping {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: tz-ping 2.6s ease-out infinite;
-}
-@keyframes tz-ping {
-  0% { opacity: 0.9; transform: scale(0.5); }
-  70%, 100% { opacity: 0; transform: scale(2.4); }
-}
-
-/* Relocated 3D globe - full-width strip */
+/* Time zones + interactive 3D globe - full-width strip. The globe pill
+   scroll-tilts/scales into place (see GlobeRevealCard); .globe-wrap is
+   its perspective root and sizing box. */
 .globe-wrap {
   position: relative;
-  flex: 0 1 250px;
+  perspective: 1100px;
+  flex: 0 1 320px;
   min-width: 0;
-  width: min(250px, 100%);
+  width: min(320px, 100%);
 }
-.globe-canvas {
-  height: 210px;
+.globe-reveal-pill {
   position: relative;
+  width: 100%;
+}
+.world-globe-canvas {
+  position: relative;
+  height: 280px;
   z-index: 1;
 }
-.globe-canvas canvas {
+.world-globe-canvas canvas {
   display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+.world-globe-label {
+  position: absolute;
+  transform: translate(-50%, -140%);
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(10, 10, 20, 0.92);
+  border: 1px solid rgba(34, 211, 238, 0.5);
+  color: #e5f7fb;
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
 }
 .globe-glow {
   position: absolute;
   top: 5px;
   left: 50%;
   transform: translateX(-50%);
-  width: 230px;
-  height: 210px;
+  width: 300px;
+  height: 280px;
   background: radial-gradient(circle, rgba(124, 58, 237, 0.28), transparent 65%);
   pointer-events: none;
 }
@@ -1245,6 +1439,7 @@ a.cta {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   margin-bottom: 10px;
   padding: 11px 10px;
   border-radius: 11px;
@@ -1254,6 +1449,10 @@ a.cta {
   font-family: var(--font-inter), sans-serif;
   font-size: 13px;
   white-space: nowrap;
+}
+.stack-chip img {
+  flex: none;
+  border-radius: 3px;
 }
 .tool-monogram {
   display: inline-flex;
@@ -1608,6 +1807,14 @@ a.cta {
     radial-gradient(90% 120% at 85% 110%, color-mix(in srgb, var(--accent) 34%, transparent), transparent 60%),
     linear-gradient(150deg, color-mix(in srgb, var(--accent) 16%, #0b0b16), #0b0b16 75%);
 }
+.shot-body-orion {
+  align-items: center;
+  text-align: center;
+}
+.shot-body-orion .orion-core {
+  position: relative;
+  z-index: 1;
+}
 .shot-title {
   position: relative;
   z-index: 1;
@@ -1799,93 +2006,174 @@ a.cta {
 .approach-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 26px;
-  max-width: 860px;
+  gap: 30px;
+  max-width: 1280px;
   margin: 0 auto;
 }
-.approach-card {
-  perspective: 900px;
-  height: 420px;
+/* Literal 3D flip card: .approach-card-wrap is the perspective root,
+   .approach-card is the rotating shell, and the two .approach-face
+   children are pinned to opposite sides via backface-visibility so only
+   one is ever painted at a time. */
+.approach-card-wrap {
+  min-width: 0;
+  height: 100%;
+  perspective: 1600px;
 }
-.approach-inner {
+.approach-card {
   position: relative;
   width: 100%;
-  height: 100%;
+  min-height: 600px;
   transform-style: preserve-3d;
-  transition: transform 1.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.approach-card:hover .approach-inner {
-  transform: rotateY(180deg) rotateX(4deg);
+.approach-card-wrap:hover .approach-card {
+  transform: rotateY(180deg);
 }
-.approach-front,
-.approach-back {
+.approach-face {
   position: absolute;
   inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  border-radius: 18px;
-  border: 1px solid rgba(124, 58, 237, 0.25);
-  overflow: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-.approach-front {
-  background: rgba(13, 13, 22, 0.85);
-}
-.approach-back {
-  transform: rotateY(180deg);
-  flex-direction: column;
+  gap: 18px;
+  padding: 40px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   text-align: center;
-  padding: 42px;
-  background: linear-gradient(160deg, rgba(124, 58, 237, 0.3), rgba(34, 211, 238, 0.14));
 }
-.approach-back h4 {
+/* Front - plain, muted, understated: just the icon + phase pill. */
+.approach-face-front {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+}
+/* Back - full content, mirrored into place so it reads right-way-round
+   once the card has turned 180deg. */
+.approach-face-back {
+  transform: rotateY(180deg);
+  background: #100f1c;
+}
+/* The vibrant gradient lives on its own layer that fades in with a
+   slight delay relative to the flip, so the color feels like it's
+   flowing in as part of the reveal rather than popping in the instant
+   the back face becomes visible (~halfway through the rotation). */
+.approach-gradient-fill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  background-size: 220% 220%;
+  transition: opacity 0.9s ease 0.15s;
+  animation: approach-drift 6s ease-in-out infinite alternate;
+}
+.approach-card-wrap:hover .approach-gradient-fill {
+  opacity: 1;
+}
+@keyframes approach-drift {
+  0% { background-position: 0% 15%; }
+  100% { background-position: 100% 85%; }
+}
+/* Purple/cyan/blue gradients, one per phase, distinct from each other */
+.approach-grad-a {
+  background-image: linear-gradient(155deg, #2e1065 0%, #6d28d9 50%, #1e1b4b 100%);
+}
+.approach-grad-b {
+  background-image: linear-gradient(155deg, #0e2a35 0%, #0891b2 50%, #164e63 100%);
+}
+.approach-grad-c {
+  background-image: linear-gradient(155deg, #1e1b4b 0%, #3b5bdb 50%, #0c1442 100%);
+}
+/* Faint floating light points - ambient life while the back face is
+   active, on top of the gradient layer. */
+.approach-particle {
+  position: absolute;
+  z-index: 1;
+  border-radius: 50%;
+  filter: blur(20px);
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent 70%);
+  transition: opacity 0.6s ease 0.25s;
+}
+.approach-card-wrap:hover .approach-particle {
+  opacity: 0.4;
+}
+.approach-particle-a {
+  width: 110px;
+  height: 110px;
+  top: 8%;
+  right: -30px;
+  animation: approach-float-a 10s ease-in-out infinite;
+}
+.approach-particle-b {
+  width: 70px;
+  height: 70px;
+  bottom: 12%;
+  left: -16px;
+  animation: approach-float-b 12.5s ease-in-out infinite;
+}
+@keyframes approach-float-a {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-18px, 20px); }
+}
+@keyframes approach-float-b {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(16px, -18px); }
+}
+.approach-icon {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+.approach-phase-pill {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.approach-phase-pill-back {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.9);
+}
+.approach-card-title {
+  position: relative;
+  z-index: 1;
   color: white;
   font-family: var(--font-inter), sans-serif;
-  font-size: 24px;
-  margin: 0 0 14px;
-}
-.approach-back p {
-  color: #d1d5db;
-  font-family: var(--font-inter), sans-serif;
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: 27px;
+  font-weight: 700;
   margin: 0;
 }
-.approach-phase {
-  font-family: var(--font-jetbrains), monospace;
-  font-size: 14px;
-  letter-spacing: 1px;
-  color: #cfd2da;
-  border: 1px solid rgba(124, 58, 237, 0.45);
-  background: rgba(124, 58, 237, 0.1);
-  border-radius: 99px;
-  padding: 12px 28px;
-  z-index: 2;
-}
-/* geometric shapes that fill in on hover */
-.approach-shapes i {
-  position: absolute;
-  opacity: 0;
-  transform: scale(0) rotate(0deg);
-  transition: transform 0.5s ease, opacity 0.5s ease;
-}
-.approach-card:hover .approach-shapes i {
-  opacity: 0.55;
-  transform: scale(1) rotate(45deg);
-}
-.approach-shapes i:nth-child(1) { top: 12%; left: 10%; width: 26px; height: 26px; transition-delay: 0.05s; }
-.approach-shapes i:nth-child(2) { top: 18%; right: 13%; width: 18px; height: 18px; transition-delay: 0.12s; }
-.approach-shapes i:nth-child(3) { bottom: 18%; left: 16%; width: 20px; height: 20px; transition-delay: 0.18s; }
-.approach-shapes i:nth-child(4) { bottom: 12%; right: 10%; width: 30px; height: 30px; transition-delay: 0.24s; }
-.approach-shapes i:nth-child(5) { top: 46%; left: 5%; width: 14px; height: 14px; transition-delay: 0.1s; }
-.approach-shapes i:nth-child(6) { top: 40%; right: 5%; width: 22px; height: 22px; transition-delay: 0.16s; }
-.approach-shape-a i { border: 1.5px solid #a78bfa; }
-.approach-shape-b i { border: 1.5px solid #22d3ee; border-radius: 50%; }
-.approach-shape-c i {
-  background: rgba(244, 114, 182, 0.45);
-  clip-path: polygon(50% 0, 0 100%, 100% 100%);
+.approach-card-text {
+  position: relative;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.82);
+  font-family: var(--font-inter), sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  margin: 0;
+  max-width: 34ch;
 }
 
 /* ============================================================
@@ -1916,12 +2204,14 @@ a.cta {
   border-radius: 20px;
   background: rgba(14, 14, 23, 0.8);
   border: 1px solid rgba(124, 58, 237, 0.22);
-  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  transition: border-color 0.35s, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s;
 }
 .testimonial-card:hover {
   border-color: rgba(167, 139, 250, 0.5);
-  transform: translateY(-6px);
-  box-shadow: 0 20px 44px rgba(6, 6, 15, 0.55), 0 0 26px rgba(124, 58, 237, 0.12);
+  transform: translateY(-6px) scale(1.045);
+  box-shadow: 0 26px 56px rgba(6, 6, 15, 0.6), 0 0 32px rgba(124, 58, 237, 0.16);
+  z-index: 2;
 }
 .testimonial-mark {
   display: block;
@@ -1950,15 +2240,15 @@ a.cta {
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  color: white;
-  font-family: var(--font-inter), sans-serif;
-  font-size: 15px;
-  font-weight: 700;
+  overflow: hidden;
   flex-shrink: 0;
+  border: 1px solid rgba(167, 139, 250, 0.3);
 }
-.av-purple { background: linear-gradient(135deg, #7c3aed, #a78bfa); }
-.av-pink { background: linear-gradient(135deg, #f472b6, #a78bfa); }
-.av-cyan { background: linear-gradient(135deg, #0891b2, #22d3ee); }
+.testimonial-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .testimonial-person {
   display: flex;
   flex-direction: column;
@@ -1996,43 +2286,66 @@ a.cta {
 .logo-marquee {
   margin-top: 50px;
   overflow: hidden;
+  min-height: 84px;
+  display: flex;
+  align-items: center;
   -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
   mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
 }
-.logo-track {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: max-content;
-  animation: logo-scroll-right 32s linear infinite;
-}
-@keyframes logo-scroll-right {
-  from { transform: translateX(-50%); }
-  to { transform: translateX(0%); }
+/* Row-level slide+blur transition - the whole visible set of logos
+   moves and (un)blurs together as one unit (see LogoCloud.tsx), not a
+   per-logo flip. Fixed 4-column grid so every pill is the same size
+   regardless of label length, instead of sizing to content. */
+.logo-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
 }
 .logo-chip {
   position: relative;
   display: inline-flex;
   align-items: center;
-  padding: 12px 20px;
+  justify-content: center;
+  gap: 10px;
+  height: 60px;
+  padding: 0 14px;
   border-radius: 999px;
   border: 1px solid rgba(124, 58, 237, 0.22);
   background: rgba(14, 14, 23, 0.7);
-  flex-shrink: 0;
   overflow: hidden;
-}
-.logo-chip-inner {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
   color: #cfd2da;
   font-family: var(--font-jetbrains), monospace;
   font-size: 13px;
+}
+.logo-chip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Some brand marks (Next.js, GitHub, Three.js, VS Code) render black or
+   near-black by default - checked individually against this dark theme,
+   not a blanket treatment, since the colorful marks read fine as-is. */
+.tool-icon-backing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  flex-shrink: 0;
+}
 @media (max-width: 600px) {
+  .logo-row {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 360px;
+    gap: 14px;
+  }
   .logo-chip {
-    padding: 10px 16px;
+    height: 50px;
+    padding: 0 12px;
+    font-size: 12px;
   }
 }
 
@@ -2263,7 +2576,10 @@ a.cta {
     max-width: 400px;
   }
   .approach-card {
-    height: 340px;
+    min-height: 380px;
+  }
+  .approach-face {
+    padding: 34px 30px;
   }
   .contact-grid {
     grid-template-columns: 1fr;
@@ -2309,6 +2625,20 @@ a.cta {
   }
   .nav-toggle {
     display: flex;
+  }
+  .timeline {
+    padding-left: 24px;
+  }
+  .timeline-dot {
+    left: -24px;
+  }
+  .timeline-card {
+    padding: 18px 20px;
+  }
+  .timeline-cta {
+    padding-left: 24px;
+    flex-direction: column;
+    align-items: flex-start;
   }
   .ws-grid {
     grid-template-columns: 1fr;
@@ -2382,7 +2712,6 @@ a.cta {
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   .testimonial-track,
-  .logo-track,
   .stack-up,
   .stack-down,
   .glitch::before,
@@ -2392,9 +2721,18 @@ a.cta {
   .aurora-wash::after,
   .pin-rings i,
   .pin-reveal,
-  .tz-ping,
-  .scroll-wheel {
+  .scroll-wheel,
+  .approach-gradient-fill,
+  .approach-particle {
     animation: none;
+  }
+  .approach-card {
+    transition-duration: 0.15s;
+  }
+  .approach-gradient-fill,
+  .approach-particle {
+    transition-duration: 0.15s;
+    transition-delay: 0s;
   }
 }
 

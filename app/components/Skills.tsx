@@ -33,7 +33,7 @@ const CATEGORIES = [
 export default function Skills() {
   return (
     <section id="skills" className="skills-section">
-      <p className="section-label">04 · Skills &amp; Tools</p>
+      <p className="section-label">05 · Skills &amp; Tools</p>
       <h2 className="section-title">
         What I <span className="highlight">Work With</span>
       </h2>

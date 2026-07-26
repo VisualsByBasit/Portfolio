@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-import Globe from "./Globe";
-import { TOOLS } from "./tools";
-import { DottedGlowBackground } from "./ui/DottedGlowBackground";
+import GlobeRevealCard from "./GlobeRevealCard";
+import { MARQUEE_TOOLS, ToolLogo } from "./tools";
 
 /* ------------------------- Terminal card ------------------------- */
 
@@ -105,116 +104,30 @@ function Terminal() {
 /* ------------------------ Stack columns card ---------------------- */
 
 function StackColumns() {
-  const names = TOOLS.map((t) => t.name);
-  const colA = names.filter((_, i) => i % 2 === 0);
-  const colB = names.filter((_, i) => i % 2 === 1);
+  const colA = MARQUEE_TOOLS.filter((_, i) => i % 2 === 0);
+  const colB = MARQUEE_TOOLS.filter((_, i) => i % 2 === 1);
   return (
     <div className="stack-cols">
       <div className="stack-col">
         <div className="stack-track stack-up">
-          {[...colA, ...colA].map((name, i) => (
+          {[...colA, ...colA].map((tool, i) => (
             <span key={i} className="stack-chip">
-              {name}
+              <ToolLogo tool={tool} size={18} />
+              {tool.name}
             </span>
           ))}
         </div>
       </div>
       <div className="stack-col">
         <div className="stack-track stack-down">
-          {[...colB, ...colB].map((name, i) => (
+          {[...colB, ...colB].map((tool, i) => (
             <span key={i} className="stack-chip">
-              {name}
+              <ToolLogo tool={tool} size={18} />
+              {tool.name}
             </span>
           ))}
         </div>
       </div>
-    </div>
-  );
-}
-
-/* ---------------------- Flat dotted world map --------------------- */
-
-// Stylized world map on a 48×20 dot grid ('#' = land). Deliberately
-// coarse - it reads as continents at a glance, like reference/bento.png.
-const MAP_ROWS = [
-  "...###..######...###.....##..##############....",
-  "..#############..###...######################..",
-  "..############...##...#######################..",
-  "...##########.........######################...",
-  "....########..........#####..######..#####.....",
-  ".....######...........####...#####...####......",
-  "......#####...........#####.######...####......",
-  ".......####...........#######..####..###.......",
-  "........###...........########..###..##........",
-  ".........##...........########...#...##....#...",
-  ".........####..........#######......###..##....",
-  "........#####..........######........#..###....",
-  "........#####...........####............####...",
-  ".........###............####...........#####...",
-  ".........###.............##............#####.#.",
-  ".........##..............#.............###...#.",
-  "........##.....................................",
-  "........#......................................",
-  ".........#.....................................",
-  "..........#....................................",
-];
-
-// Islamabad ≈ 33.7N, 73.1E → grid cell on the 48×20 map.
-const HOME = { row: 6, col: 34 };
-
-const TZ_CHIPS = [
-  { label: "USA", left: "10%", top: "34%" },
-  { label: "UK", left: "38%", top: "30%" },
-  { label: "Germany", left: "48%", top: "52%" },
-  { label: "Ukraine", left: "60%", top: "28%" },
-  { label: "Pakistan", left: "68%", top: "58%", home: true },
-];
-
-function DottedMap() {
-  return (
-    <div className="tz-map">
-      <svg viewBox="0 0 480 200" preserveAspectRatio="xMidYMid meet" aria-hidden>
-        {MAP_ROWS.flatMap((row, r) =>
-          row
-            .padEnd(48, ".")
-            .slice(0, 48)
-            .split("")
-            .map((ch, c) =>
-              ch === "#" ? (
-                <circle
-                  key={`${r}-${c}`}
-                  cx={c * 10 + 5}
-                  cy={r * 10 + 5}
-                  r={2.1}
-                  fill={
-                    r === HOME.row && c === HOME.col
-                      ? "#22d3ee"
-                      : "rgba(167, 139, 250, 0.32)"
-                  }
-                />
-              ) : null,
-            ),
-        )}
-        {/* Home ping ring */}
-        <circle
-          cx={HOME.col * 10 + 5}
-          cy={HOME.row * 10 + 5}
-          r={6}
-          fill="none"
-          stroke="rgba(34, 211, 238, 0.6)"
-          strokeWidth="1.2"
-          className="tz-ping"
-        />
-      </svg>
-      {TZ_CHIPS.map((chip) => (
-        <span
-          key={chip.label}
-          className={`tz-chip${chip.home ? " tz-chip-home" : ""}`}
-          style={{ left: chip.left, top: chip.top }}
-        >
-          {chip.label}
-        </span>
-      ))}
     </div>
   );
 }
@@ -252,7 +165,7 @@ function CopyEmail() {
 export default function WorkingStyle() {
   return (
     <section id="working" className="ws-section">
-      <p className="section-label">02 · Working Style</p>
+      <p className="section-label">03 · Working Style</p>
       <h2 className="section-title">
         How I <span className="highlight">Operate</span>
       </h2>
@@ -263,40 +176,35 @@ export default function WorkingStyle() {
           <span className="ws-bubble ws-bubble-a" aria-hidden />
           <span className="ws-bubble ws-bubble-b" aria-hidden />
           <div className="laptop">
-            <div className="laptop-lid">
-              <div className="laptop-screen">
-                <div className="screen-site">
-                  <span className="screen-brand">PLANET EARTH</span>
-                  <span className="screen-tag">design · code · ship</span>
-                  <span className="screen-cta" />
+            <div className="laptop-rig">
+              <div className="laptop-lid">
+                <span className="laptop-cam" aria-hidden />
+                <div className="laptop-screen">
+                  <div className="screen-site">
+                    <span className="screen-brand">PLANET EARTH</span>
+                    <span className="screen-tag">design · code · ship</span>
+                    <span className="screen-cta" />
+                  </div>
+                  <div className="screen-earth" />
                 </div>
-                <div className="screen-earth" />
               </div>
-            </div>
-            <div className="laptop-base">
-              <span className="laptop-notch" />
+              <div className="laptop-base">
+                <span className="laptop-notch" />
+                <div className="laptop-deck">
+                  <div className="laptop-keys" aria-hidden>
+                    {Array.from({ length: 30 }).map((_, i) => (
+                      <i key={i} />
+                    ))}
+                  </div>
+                  <div className="laptop-trackpad" aria-hidden />
+                </div>
+                <div className="laptop-edge" aria-hidden />
+              </div>
             </div>
           </div>
           <h3 className="ws-laptop-headline">
             I prioritize client collaboration, fostering open communication
           </h3>
-        </div>
-
-        {/* Flat dotted map - time zones */}
-        <div className="ws-card ws-tz-card">
-          <DottedGlowBackground
-            className="tz-glow-bg"
-            gap={16}
-            radius={1.6}
-            color="rgba(167, 139, 250, 0.4)"
-            glowColor="rgba(34, 211, 238, 0.85)"
-            opacity={0.45}
-            speedScale={0.8}
-          />
-          <h3 className="ws-h3">
-            I&apos;m very flexible with time zone communications
-          </h3>
-          <DottedMap />
         </div>
 
         {/* Tech stack - opposing plain-text marquee columns */}
@@ -338,17 +246,16 @@ export default function WorkingStyle() {
           <CopyEmail />
         </div>
 
-        {/* Relocated 3D globe - full-width strip */}
+        {/* Time zones + interactive globe - grows/straightens up as this
+            row scrolls into view (see GlobeRevealCard) */}
         <div className="ws-card ws-globe-strip">
-          <div className="globe-wrap">
-            <div className="globe-glow" />
-            <Globe />
-          </div>
+          <GlobeRevealCard />
           <div className="globe-text">
             <h3 className="ws-h3-lg">Based in Islamabad, working worldwide</h3>
             <p>
               GMT+5 on paper, async in practice - wherever your team is, we
-              will find an overlap that works.
+              will find an overlap that works. Hover a marker on the globe
+              to see where.
             </p>
           </div>
         </div>

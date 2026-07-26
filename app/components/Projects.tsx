@@ -1,6 +1,9 @@
 "use client";
+import { IconClipboardList, IconCode, IconRocket } from "@tabler/icons-react";
 import Sparkles from "./Sparkles";
 import { TOOLS, ToolLogo, Tool } from "./tools";
+import ORIONCore from "./orion/ORIONCore";
+import { usePrefersReducedMotion } from "./ripple-grid/usePrefersReducedMotion";
 
 type Project = {
   title: string;
@@ -14,6 +17,10 @@ type Project = {
 const TOOL_BY_NAME: Record<string, Tool> = Object.fromEntries(
   TOOLS.map((t) => [t.name, t]),
 );
+
+// Sentinel href: ORION lives on this same page, so its card opens the
+// real widget instead of linking out (see the click handler in PinCard).
+const OPEN_ORION_HREF = "#open-orion";
 
 // Placeholder "#" links get swapped for real URLs later.
 const PROJECTS: Project[] = [
@@ -52,6 +59,15 @@ const PROJECTS: Project[] = [
     links: [{ label: "Check Live Site", href: "#" }],
     accent: "#7c3aed",
   },
+  {
+    title: "ORION",
+    pin: "orion ai",
+    description:
+      "A Gemini-powered AI guide built into this very portfolio - Next.js API routes behind the chat, a holographic core rendered with React Three Fiber, and Framer Motion driving the whole panel.",
+    stack: ["Next.js", "React", "TypeScript", "Three.js"],
+    links: [{ label: "Try ORION", href: OPEN_ORION_HREF }],
+    accent: "#22d3ee",
+  },
 ];
 
 const APPROACH = [
@@ -59,28 +75,48 @@ const APPROACH = [
     phase: "Phase 1",
     title: "Plan & Strategize",
     text: "We map goals, audience and scope together. Wireframes, moodboards and a clear brief - before a single line of code.",
-    shape: "approach-shape-a",
+    icon: IconClipboardList,
+    gradient: "approach-grad-a",
   },
   {
     phase: "Phase 2",
     title: "Build & Iterate",
     text: "Design and development in tight loops. You see progress early and often; feedback lands in days, not weeks.",
-    shape: "approach-shape-b",
+    icon: IconCode,
+    gradient: "approach-grad-b",
   },
   {
     phase: "Phase 3",
     title: "Launch & Polish",
     text: "Performance passes, responsive QA, deployment and handover. Then I stick around to make sure it flies.",
-    shape: "approach-shape-c",
+    icon: IconRocket,
+    gradient: "approach-grad-c",
   },
 ];
 
+// ORION lives on this page - its links open the real widget (via a
+// window event ORIONWidget listens for) instead of navigating away.
+function handleProjectLinkClick(e: React.MouseEvent, href: string) {
+  if (href !== OPEN_ORION_HREF) return;
+  e.preventDefault();
+  window.dispatchEvent(new Event("orion:open"));
+}
+
 function PinCard({ project }: { project: Project }) {
+  const reducedMotion = usePrefersReducedMotion();
+  const isOrion = project.title === "ORION";
+
   return (
     <div className="pin-wrap" data-cursor-label="View">
       {/* Floating pin: pill + beam + rings, revealed on hover */}
       <div className="pin-float" style={{ ["--accent" as string]: project.accent }}>
-        <a className="pin-pill" href={project.links[0].href} target="_blank" rel="noreferrer">
+        <a
+          className="pin-pill"
+          href={project.links[0].href}
+          target={isOrion ? undefined : "_blank"}
+          rel={isOrion ? undefined : "noreferrer"}
+          onClick={(e) => handleProjectLinkClick(e, project.links[0].href)}
+        >
           {project.pin}
         </a>
         <span className="pin-beam" />
@@ -93,19 +129,29 @@ function PinCard({ project }: { project: Project }) {
       <div className="pin-card" style={{ ["--accent" as string]: project.accent }}>
         {/* canvas-reveal style sweep: dotted matrix wiped in on hover */}
         <div className="pin-reveal" aria-hidden />
-        {/* Mock-browser screenshot placeholder in the project accent */}
+        {/* Mock-browser screenshot placeholder in the project accent -
+            ORION gets a live preview of its own real holographic core
+            instead of the generic orb, since that component is right
+            here to reuse. */}
         <div className="proj-shot" aria-hidden>
           <div className="shot-bar">
             <span /><span /><span />
             <i className="shot-url">{project.pin}</i>
           </div>
-          <div className="shot-body">
-            <span className="shot-orb" />
-            <span className="shot-title">{project.title}</span>
-            <span className="shot-lines">
-              <i /><i />
-            </span>
-          </div>
+          {isOrion ? (
+            <div className="shot-body shot-body-orion">
+              <ORIONCore mode="idle" size={84} reducedMotion={reducedMotion} />
+              <span className="shot-title">{project.title}</span>
+            </div>
+          ) : (
+            <div className="shot-body">
+              <span className="shot-orb" />
+              <span className="shot-title">{project.title}</span>
+              <span className="shot-lines">
+                <i /><i />
+              </span>
+            </div>
+          )}
         </div>
         <h3>{project.title}</h3>
         <p>{project.description}</p>
@@ -122,7 +168,13 @@ function PinCard({ project }: { project: Project }) {
           </div>
           <div className="pin-links">
             {project.links.map((l) => (
-              <a key={l.label} href={l.href} target="_blank" rel="noreferrer">
+              <a
+                key={l.label}
+                href={l.href}
+                target={isOrion ? undefined : "_blank"}
+                rel={isOrion ? undefined : "noreferrer"}
+                onClick={(e) => handleProjectLinkClick(e, l.href)}
+              >
                 {l.label} ↗
               </a>
             ))}
@@ -136,7 +188,7 @@ function PinCard({ project }: { project: Project }) {
 export default function Projects() {
   return (
     <section id="projects" className="projects-section">
-      <p className="section-label">03 · Selected Work</p>
+      <p className="section-label">04 · Selected Work</p>
       <div className="projects-heading">
         <Sparkles density={26} />
         <h2 className="section-title">
@@ -156,17 +208,21 @@ export default function Projects() {
       <p className="approach-sub">Hover a phase to flip it open.</p>
       <div className="approach-grid">
         {APPROACH.map((a) => (
-          <div key={a.phase} className="approach-card">
-            <div className="approach-inner">
-              <div className="approach-front">
-                <div className={`approach-shapes ${a.shape}`} aria-hidden>
-                  <i /><i /><i /><i /><i /><i />
-                </div>
-                <span className="approach-phase">{a.phase}</span>
+          <div key={a.phase} className="approach-card-wrap">
+            <div className="approach-card">
+              <div className="approach-face approach-face-front">
+                <span className="approach-icon">
+                  <a.icon size={30} stroke={1.5} />
+                </span>
+                <span className="approach-phase-pill">{a.phase}</span>
               </div>
-              <div className="approach-back">
-                <h4>{a.title}</h4>
-                <p>{a.text}</p>
+              <div className="approach-face approach-face-back">
+                <span className={`approach-gradient-fill ${a.gradient}`} aria-hidden />
+                <span className="approach-particle approach-particle-a" aria-hidden />
+                <span className="approach-particle approach-particle-b" aria-hidden />
+                <span className="approach-phase-pill approach-phase-pill-back">{a.phase}</span>
+                <h4 className="approach-card-title">{a.title}</h4>
+                <p className="approach-card-text">{a.text}</p>
               </div>
             </div>
           </div>

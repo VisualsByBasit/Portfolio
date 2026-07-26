@@ -22,6 +22,15 @@ function LinkedinIcon() {
   );
 }
 
+function WhatsappIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
+      <path d="M17.47 14.38c-.29-.15-1.7-.84-1.97-.93-.26-.1-.46-.15-.65.14-.2.29-.75.93-.92 1.13-.17.19-.34.22-.63.07-.29-.15-1.22-.45-2.32-1.43-.86-.76-1.44-1.71-1.6-2-.17-.29-.02-.44.13-.59.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.1-.2.05-.36-.02-.5-.07-.15-.65-1.57-.9-2.15-.24-.57-.48-.49-.65-.5h-.56c-.19 0-.5.07-.77.36-.26.29-1.01.99-1.01 2.41s1.04 2.79 1.18 2.98c.15.19 2.04 3.11 4.94 4.36.69.3 1.23.48 1.65.61.69.22 1.32.19 1.82.11.55-.08 1.7-.7 1.94-1.37.24-.68.24-1.26.17-1.38-.07-.12-.26-.19-.55-.34Z" />
+      <path d="M12.02 2C6.5 2 2.02 6.48 2.02 12c0 1.85.5 3.58 1.38 5.07L2 22l5.06-1.33A9.94 9.94 0 0 0 12.02 22c5.52 0 10-4.48 10-10S17.54 2 12.02 2Zm0 18.13c-1.66 0-3.2-.47-4.5-1.29l-.32-.19-3 .79.8-2.93-.21-.3A8.1 8.1 0 0 1 3.9 12c0-4.48 3.65-8.13 8.12-8.13S20.14 7.52 20.14 12s-3.65 8.13-8.12 8.13Z" />
+    </svg>
+  );
+}
+
 /**
  * Contact form wired to EmailJS. Reads its IDs from NEXT_PUBLIC_ env vars
  * (see .env.local.example) - until those are set, submissions show a
@@ -59,7 +68,7 @@ export default function Contact() {
       <span id="letstalk" className="anchor-alias" aria-hidden />
 
       <div className="contact-hero">
-        <p className="section-label contact-label-center">07 · Contact</p>
+        <p className="section-label contact-label-center">08 · Contact</p>
         <h2 className="section-title contact-headline">
           Let&apos;s <span className="highlight">Talk</span>
         </h2>
@@ -148,6 +157,15 @@ export default function Contact() {
           </a>
           <a href="#" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="footer-icon">
             <LinkedinIcon />
+          </a>
+          <a
+            href="https://wa.me/923340666502"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="WhatsApp"
+            className="footer-icon"
+          >
+            <WhatsappIcon />
           </a>
         </div>
       </footer>

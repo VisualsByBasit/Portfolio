@@ -14,6 +14,7 @@ import Sparkles from "./components/Sparkles";
 import GlitchText from "./components/GlitchText";
 import Typewriter from "./components/Typewriter";
 import { CardContainer, CardBody, CardItem } from "./components/ui/ThreeDCard";
+import Experience from "./components/Experience";
 import WorkingStyle from "./components/WorkingStyle";
 import Skills from "./components/Skills";
 import Projects from "./components/Projects";
@@ -252,6 +253,7 @@ export default function Home() {
         </div>
       </section>
 
+      <Experience />
       <WorkingStyle />
       <Projects />
       <Skills />
