@@ -22,14 +22,13 @@ const TOOL_BY_NAME: Record<string, Tool> = Object.fromEntries(
 // real widget instead of linking out (see the click handler in PinCard).
 const OPEN_ORION_HREF = "#open-orion";
 
-// Placeholder "#" links get swapped for real URLs later.
 const PROJECTS: Project[] = [
   {
     title: "Portfolio",
     pin: "you are here",
     description: "Hand-built with Next.js, Three.js, GSAP and Framer Motion - no template.",
     stack: ["Next.js", "React", "TypeScript", "Three.js", "GSAP"],
-    links: [{ label: "Check Live Site", href: "#" }],
+    links: [],
     accent: "#a78bfa",
   },
   {
@@ -37,7 +36,7 @@ const PROJECTS: Project[] = [
     pin: "dotrevamp",
     description: "Studio work revamping dated sites into fast, modern experiences.",
     stack: ["Figma", "Next.js", "React", "Hostinger"],
-    links: [{ label: "Check Live Site", href: "#" }],
+    links: [{ label: "Check Live Site", href: "https://dotrevamp.netlify.app/" }],
     accent: "#22d3ee",
   },
   {
@@ -46,17 +45,18 @@ const PROJECTS: Project[] = [
     description: "NGO site telling their story and driving donations and volunteer sign-ups.",
     stack: ["Figma", "Next.js", "Canva", "Hostinger"],
     links: [
-      { label: "Check Live Site", href: "#" },
-      { label: "Instagram", href: "#" },
+      { label: "Check Live Site", href: "https://riyatpk.netlify.app/" },
+      { label: "Instagram", href: "https://www.instagram.com/riyat.pk/" },
     ],
     accent: "#f472b6",
   },
   {
-    title: "PMUN Registration System",
+    title: "PMUN26",
     pin: "pmun events",
-    description: "End-to-end registration, committee allocation and check-in for thousands of delegates.",
+    description:
+      "Director of Registrations for PMUN26 - built the registration system handling 2,400+ participants end-to-end, from committee allocation to check-in.",
     stack: ["Next.js", "TypeScript", "Node.js", "Vercel"],
-    links: [{ label: "Check Live Site", href: "#" }],
+    links: [{ label: "Instagram", href: "https://www.instagram.com/pmun.26/" }],
     accent: "#7c3aed",
   },
   {
@@ -106,19 +106,25 @@ function PinCard({ project }: { project: Project }) {
   const reducedMotion = usePrefersReducedMotion();
   const isOrion = project.title === "ORION";
 
+  const hasLinks = project.links.length > 0;
+
   return (
-    <div className="pin-wrap" data-cursor-label="View">
+    <div className="pin-wrap" data-cursor-label={hasLinks ? "View" : undefined}>
       {/* Floating pin: pill + beam + rings, revealed on hover */}
       <div className="pin-float" style={{ ["--accent" as string]: project.accent }}>
-        <a
-          className="pin-pill"
-          href={project.links[0].href}
-          target={isOrion ? undefined : "_blank"}
-          rel={isOrion ? undefined : "noreferrer"}
-          onClick={(e) => handleProjectLinkClick(e, project.links[0].href)}
-        >
-          {project.pin}
-        </a>
+        {hasLinks ? (
+          <a
+            className="pin-pill"
+            href={project.links[0].href}
+            target={isOrion ? undefined : "_blank"}
+            rel={isOrion ? undefined : "noopener noreferrer"}
+            onClick={(e) => handleProjectLinkClick(e, project.links[0].href)}
+          >
+            {project.pin}
+          </a>
+        ) : (
+          <span className="pin-pill pin-pill-static">{project.pin}</span>
+        )}
         <span className="pin-beam" />
         <span className="pin-rings">
           <i /><i /><i />
@@ -167,17 +173,21 @@ function PinCard({ project }: { project: Project }) {
             )}
           </div>
           <div className="pin-links">
-            {project.links.map((l) => (
-              <a
-                key={l.label}
-                href={l.href}
-                target={isOrion ? undefined : "_blank"}
-                rel={isOrion ? undefined : "noreferrer"}
-                onClick={(e) => handleProjectLinkClick(e, l.href)}
-              >
-                {l.label} ↗
-              </a>
-            ))}
+            {hasLinks ? (
+              project.links.map((l) => (
+                <a
+                  key={l.label}
+                  href={l.href}
+                  target={isOrion ? undefined : "_blank"}
+                  rel={isOrion ? undefined : "noopener noreferrer"}
+                  onClick={(e) => handleProjectLinkClick(e, l.href)}
+                >
+                  {l.label} ↗
+                </a>
+              ))
+            ) : (
+              <span className="pin-link-static">You&apos;re on it</span>
+            )}
           </div>
         </div>
       </div>

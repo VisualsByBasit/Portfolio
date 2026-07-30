@@ -1897,6 +1897,14 @@ a.cta {
 .pin-links a:hover {
   text-decoration: underline;
 }
+.pin-link-static {
+  color: rgba(255, 255, 255, 0.4);
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 13px;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  cursor: default;
+}
 
 /* dotted "canvas reveal" sweep across the card face */
 .pin-reveal {
@@ -1948,6 +1956,11 @@ a.cta {
   padding: 7px 18px;
   box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 55%, transparent);
   white-space: nowrap;
+}
+.pin-pill-static {
+  color: rgba(255, 255, 255, 0.55);
+  box-shadow: none;
+  cursor: default;
 }
 .pin-beam {
   width: 1.5px;

@@ -323,11 +323,23 @@ export default function Contact() {
           <WhatsappIcon />
           +92 334 0666502
         </a>
-        <a className="contact-link-chip" href="#" target="_blank" rel="noreferrer" data-cursor-label="View">
+        <a
+          className="contact-link-chip"
+          href="https://github.com/VisualsByBasit"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-cursor-label="View"
+        >
           <GithubIcon />
           GitHub
         </a>
-        <a className="contact-link-chip" href="#" target="_blank" rel="noreferrer" data-cursor-label="View">
+        <a
+          className="contact-link-chip"
+          href="https://www.linkedin.com/in/abdul-basit-a36b25385/"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-cursor-label="View"
+        >
           <LinkedinIcon />
           LinkedIn
         </a>
@@ -339,10 +351,22 @@ export default function Contact() {
           <span className="footer-mono">{" // cleared for takeoff"}</span>
         </p>
         <div className="footer-socials">
-          <a href="#" target="_blank" rel="noreferrer" aria-label="GitHub" className="footer-icon">
+          <a
+            href="https://github.com/VisualsByBasit"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GitHub"
+            className="footer-icon"
+          >
             <GithubIcon />
           </a>
-          <a href="#" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="footer-icon">
+          <a
+            href="https://www.linkedin.com/in/abdul-basit-a36b25385/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="LinkedIn"
+            className="footer-icon"
+          >
             <LinkedinIcon />
           </a>
           <a
