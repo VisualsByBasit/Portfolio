@@ -183,6 +183,32 @@ Cost: what this makes harder
 **Decision:** Real screenshots and real writing for every beat become Gate 2, running in parallel with prototyping.
 
 **Rationale:** Above the deck the site runs on atmosphere and content. An award-standard shell around one-line project descriptions reads worse than a modest site with excellent writing, because the gap is visible. This is a larger threat to the outcome than the break itself.
+---
+
+### D-018 — Target is Igloo-grade stylised, not photographic
+**Status:** Accepted · **Date:** 2026-08
+
+**Decision:** The cloud deck is judged as restrained, near-monochrome, obviously rendered and internally coherent. The reference photograph is retired as a target.
+
+**Rationale:** The Gate 1 brief specified both restrained art direction and a photograph, which are different standards. Two techniques were judged against a bar neither could reach, and the target moved across three rounds. Locking it stylised makes the heightfield's limits non-binding.
+
+---
+
+### D-019 — The cloud deck is a lit surface, not participating media
+**Status:** Accepted · **Date:** 2026-08
+
+**Decision:** The deck is a displaced heightfield with real normals, self-shadowing and wrapped translucent lighting. Not stacked planes, not raymarched volume.
+
+**Rationale:** Stacked planes failed on measured grounds: 66 world units over 26 slices is 2.54u of vertical resolution, the parameter hiding the slice banding (`topSoft`) was the same one destroying crisp edges, and reaching reference density needed ~200 slices at a measured ~0.09ms each against a 13.7ms budget. Raymarching was approved, then superseded by the observation that cloud tops seen from above are a landscape rather than a volume — beats 1 to 3 are the camera inside fog and need no volume at all.
+
+---
+
+### D-020 — The sky darkens progressively across the whole light world
+**Status:** Accepted · **Date:** 2026-08
+
+**Decision:** From the break onward the sky deepens continuously — pale cold grey, to blue-grey, to navy, with faint first stars only in the final beat. Supersedes "cold daylight throughout" in `02-DESIGN-LANGUAGE`.
+
+**Rationale:** The aircraft never stops climbing, so a static light world contradicts its own premise and leaves nothing to discover after the reveal.
 
 ---
 
@@ -205,3 +231,9 @@ Cost: what this makes harder
 
 ### R-006 â€” Aviation as visible theme
 **Rejected 2026-07.** Cockpit skeuomorphism, aircraft models, HUD reticles and runway textures. If a visitor describes the site as "the aviation one," the language became the subject.
+
+### R-007 — Starfield above the deck at the break
+**Rejected 2026-08.** Sunlit cloud tops and visible stars cannot coexist without reading as incoherent, and it shifts the thesis from perspective to escape. Stars appear only in the final beat, faintly, once the sky is genuinely navy (D-020).
+
+### R-008 — Photoreal cloud
+**Rejected 2026-08.** Unreachable in-browser at 60fps on the target hardware, and pursuing it moved the target across three rounds. Superseded by D-018.

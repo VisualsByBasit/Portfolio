@@ -28,8 +28,14 @@ New. Non-emissive. **No bloom, no glow, no self-lit surfaces.**
 | `--above-cloud-mid` | `#EEF1F4` | Cloud body |
 | `--above-cloud-shadow` | `#C9D2DA` | Shadowed cloud, cool |
 | `--above-haze` | `#DCE6EE` | Horizon atmosphere |
-| `--above-sky-low` | `#7FA3C4` | Sky near horizon |
-| `--above-sky-high` | `#4A7196` | Sky toward zenith |
+| `--above-sky-low` | `#D6DCE1` | Sky near horizon, at the break |
+| `--above-sky-high` | `#66727C` | Sky toward zenith, at the break |
+| `--above-sky-low-deep` | `#5A6878` | Sky near horizon, late |
+| `--above-sky-high-deep` | `#141E33` | Zenith, final beat — navy |
+
+The previous sky tokens (`#7FA3C4` / `#4A7196`) carried 35% and 51% saturation and read as a clear day rather than as air above an overcast layer. Above the deck the sky is desaturated: the vertical ramp is carried by **value, not hue**. The two `-deep` tokens are the end of the progressive darkening in D-020.
+
+**Cloud shadow is not a lighting ramp.** `--above-cloud-shadow` is a fill token. Used as the dark end of a lit surface it leaves 15.7% of total contrast, through which no amount of shadow detail can show form. Shaded cloud faces in 3D want roughly `#A2AEB8` — high enough to stay vapour rather than rock, low enough to have somewhere to go.
 | `--above-ink` | `#1A2028` | Primary text â€” cold near-black, **never** pure |
 | `--above-ink-soft` | `#5A6672` | Secondary text |
 | `--above-line` | `#B8C4CE` | Hairlines, dividers |

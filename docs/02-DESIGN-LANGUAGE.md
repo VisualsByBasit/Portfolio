@@ -35,6 +35,8 @@ This world already exists and is good. It needs an exit, not a redesign.
 
 **Emptiness is a material.** Large void areas are the point. The view is mostly nothing. That is what makes it a view.
 
+**The sky is never static.** The aircraft does not stop climbing at the break, so the sky keeps deepening for the entire remainder: pale cold grey at the reveal, blue-grey through the middle, navy at the end, with faint first stars only in the final beat. A light world that holds one colour contradicts its own premise. See D-020; stars at the break are rejected under R-007.
+
 ---
 
 ## Colour philosophy
